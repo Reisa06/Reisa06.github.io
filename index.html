@@ -3,165 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASOIAF Builder - 40pts + 3 Free</title>
+    <title>Reisa ASOIAF Builder</title>
     <style>
         :root {
             --stark: #2c3e50;
             --bolton: #c0392b;
             --gold: #f1c40f;
             --share: #3498db;
+            --tactics: #9b59b6;
             --bg: #f0f2f5;
             --free-green: #27ae60;
         }
 
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #333; }
 
-        /* --- HEADER --- */
+        /* HEADER */
         header {
-            position: sticky;
-            top: 0;
-            background: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            z-index: 100;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            position: sticky; top: 0; background: white; padding: 10px 20px;
+            border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            z-index: 100; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
         }
-
-        .points-box { text-align: left; }
-        
         .total-row { display: flex; align-items: baseline; gap: 10px; }
         .total-points { font-size: 2rem; font-weight: 800; color: #333; }
-        .free-points { font-size: 1rem; color: var(--free-green); font-weight: bold; background: #eafaf1; padding: 2px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
-
+        .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: #eafaf1; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
         .commander-status { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
         .status-ok { background: #dff9fb; color: #2ecc71; border: 1px solid #2ecc71; }
         .status-missing { background: #ff797933; color: #e74c3c; border: 1px solid #e74c3c; }
-
         .header-actions { display: flex; gap: 10px; }
         .btn-action { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s;}
         .btn-reset { background: #e74c3c; }
         .btn-share { background: var(--share); }
+        .btn-tactics { background: var(--tactics); }
 
-        /* --- TABS --- */
+        /* TABS */
         .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
-        .tab-btn {
-            padding: 10px 25px; border: 2px solid transparent; background: white;
-            cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s;
-            text-transform: uppercase;
-        }
+        .tab-btn { padding: 10px 25px; border: 2px solid transparent; background: white; cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s; text-transform: uppercase; }
         .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .stark-btn { color: var(--stark); } .bolton-btn { color: var(--bolton); }
 
-        /* --- LAYOUT --- */
+        /* LAYOUT */
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
         .column { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .col-store { flex: 6; }
         .col-roster { flex: 4; position: sticky; top: 90px; max-height: 85vh; overflow-y: auto; }
-
         h3 { border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 25px; color: #555; font-size: 0.9rem; text-transform: uppercase; }
-        
-        .roster-header {
-            background: #eee; padding: 8px; font-weight: bold; text-align: center; 
-            margin-bottom: 10px; border-radius: 4px; color: #555; font-size: 0.85rem; letter-spacing: 1px;
-        }
+        .roster-header { background: #eee; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 10px; border-radius: 4px; color: #555; font-size: 0.85rem; letter-spacing: 1px; }
 
-        /* --- CARDS --- */
+        /* CARDS */
         .grid-store { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-
-        .card {
-            border: 1px solid #ddd; border-radius: 6px; background: white;
-            overflow: hidden; position: relative; transition: transform 0.2s;
-            display: flex; flex-direction: column;
-        }
+        .card { border: 1px solid #ddd; border-radius: 6px; background: white; overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
         .card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .card.disabled { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
-
         .card-img-wrap { width: 100%; height: 80px; overflow: hidden; cursor: zoom-in; }
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
         .card-img-wrap:hover img { transform: scale(1.1); }
-
         .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: white;}
         .card-info:hover { background: #f9f9f9; }
-
         .card-name { font-weight: bold; font-size: 0.8rem; line-height: 1.2; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .card-cost { display: inline-block; background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-top: 5px; }
+        .commander-badge { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; background: linear-gradient(90deg, #f1c40f, #f39c12); color: white; font-size: 0.7rem; font-weight: bold; text-align: center; padding: 2px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
 
-        .commander-badge {
-            position: absolute; top: 0; left: 0; width: 100%; pointer-events: none;
-            background: linear-gradient(90deg, #f1c40f, #f39c12);
-            color: white; font-size: 0.7rem; font-weight: bold;
-            text-align: center; padding: 2px 0; letter-spacing: 1px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10;
-        }
-
-        /* --- ROSTER --- */
+        /* ROSTER */
         .roster-unit { border: 1px solid #e1e1e1; border-radius: 6px; margin-bottom: 15px; background: white; }
         .unit-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd; border-bottom: 1px solid #f0f0f0; }
         .unit-thumb { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; object-position: top; cursor: zoom-in; border: 1px solid #ccc;}
-        
-        .att-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; background: #f9f9f9;
-        }
+        .att-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; background: #f9f9f9; }
         .att-row.is-commander { background: #fffcf0; border-left: 3px solid var(--gold); }
+        .att-name-link { cursor: zoom-in; font-weight: bold; color: #333; transition: color 0.2s; }
+        .att-name-link:hover { color: var(--share); text-decoration: underline; }
         .btn-add { width: 100%; border: 1px dashed #ccc; background: none; padding: 8px; cursor: pointer; color: #777; }
         .btn-add:hover { background: #eee; color: #333; }
 
-        /* --- LIGHTBOX --- */
-        .lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 999;
-            display: none; align-items: center; justify-content: center;
-            cursor: zoom-out;
-        }
-        .lightbox img {
-            max-width: 90%; max-height: 90%;
-            border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            animation: zoomIn 0.2s;
-        }
+        /* MODALS & LIGHTBOX */
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+        .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); animation: zoomIn 0.2s; }
+        .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
+        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* --- MODAL --- */
-        .modal-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center;
-        }
-        .modal-box { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
-        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; }
+        /* TACTICS */
+        .tactics-section { margin-bottom: 20px; }
+        .tactics-title { font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: var(--tactics); }
+        .tactics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        .tactic-card { border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: zoom-in; transition: transform 0.2s; aspect-ratio: 2.5/3.5; background: #eee;}
+        .tactic-card:hover { transform: translateY(-3px); }
+        .tactic-card img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
 
-    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="Zoom">
-    </div>
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()"><img id="lightbox-img" src="" alt="Zoom"></div>
 
     <header>
         <div class="points-box">
             <div class="total-row">
-                <div class="total-points">
-                    <span id="mainPts">0</span> / 40
-                </div>
-                <div class="free-points">
-                    + <span id="freePts">0</span>/3 Attachment Points
-                </div>
-                <span id="commanderIndicator" class="commander-status status-missing">Commander Requis</span>
+                <div class="total-points"><span id="mainPts">0</span> / 40</div>
+                <div class="free-points">+ <span id="freePts">0</span>/3 Attachment Points</div>
+                <span id="commanderIndicator" class="commander-status status-missing">Commander Required</span>
             </div>
             <div class="details-points" style="font-size:0.85rem; color:#777; margin-top:5px;">
-                Coût Unités: <span id="unitPts">0</span> | Coût Attachements: <span id="attPts">0</span>
+                Cost Units: <span id="unitPts">0</span> | Cost Attachments: <span id="attPts">0</span>
             </div>
         </div>
         <div class="header-actions">
+            <button class="btn-action btn-tactics" onclick="openTacticsModal()">Tactics Cards</button>
             <button class="btn-action btn-share" onclick="shareList()">Share List</button>
             <button class="btn-action btn-reset" onclick="resetAll()">Reset</button>
         </div>
@@ -173,124 +119,195 @@
     </div>
 
     <div class="container">
-        <!-- MAGASIN -->
         <div class="column col-store">
             <h3>Battlefield Units</h3>
             <div id="store-combat" class="grid-store"></div>
-            <h3>Council Units (NCU)</h3>
+            <h3>Council Units</h3>
             <div id="store-ncu" class="grid-store"></div>
         </div>
-
-        <!-- LISTE -->
         <div class="column col-roster">
             <div class="roster-header">BATTLEFIELD UNITS</div>
             <div id="roster-list-combat"></div>
-
             <div class="roster-header" style="margin-top: 20px;">COUNCIL UNITS</div>
             <div id="roster-list-ncu"></div>
         </div>
     </div>
 
     <div id="attModal" class="modal-bg">
-        <div class="modal-box">
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-            <h3 style="margin-top:0;">Choisir un Attachement</h3>
-            <p id="commander-msg" style="font-size:0.8rem; color:#e67e22; display:none;">
-                ⚠ Un Commander est déjà présent dans l'armée.
-            </p>
+        <div class="modal-box" style="max-width: 500px;">
+            <button class="close-btn" onclick="closeModal('attModal')">&times;</button>
+            <h3>Choisir un Attachement</h3>
+            <p id="commander-msg" style="font-size:0.8rem; color:#e67e22; display:none;">⚠ Un Commander est déjà présent.</p>
             <div id="att-store-grid" class="grid-store"></div>
         </div>
     </div>
 
-    <script>
-        // --- DATA ---
-        const getImg = (name, color) => `https://via.placeholder.com/200x150/${color}/fff?text=${encodeURIComponent(name.replace(' (C)', ''))}`;
+    <div id="tacticsModal" class="modal-bg">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('tacticsModal')">&times;</button>
+            <h2 style="margin-top:0; color:#333;">Tactics Cards</h2>
+            <div class="tactics-section">
+                <div class="tactics-title" id="faction-tactics-title">Faction Cards</div>
+                <div class="tactics-grid" id="faction-tactics-grid"></div>
+            </div>
+            <div class="tactics-section">
+                <div class="tactics-title" id="commander-tactics-title">Commander Cards</div>
+                <div class="tactics-grid" id="commander-tactics-grid"></div>
+                <p id="no-commander-msg" style="color:#777; font-style:italic; text-align:center;">No Commander selected.</p>
+            </div>
+        </div>
+    </div>
 
+    <script>
+        // --- HELPERS ---
+        const getImg = (name, color) => `https://via.placeholder.com/200x150/${color}/fff?text=${encodeURIComponent(name.replace(' (C)', ''))}`;
+        const getCardImg = (name, color) => `https://via.placeholder.com/200x280/${color}/fff?text=${encodeURIComponent(name)}`;
+        const getBaseName = (name) => name.replace(' (C)', '').trim();
+
+        // --- DATABASE ---
+        // New Props: 
+        // - isUnique: true (cannot add more than 1 in list)
+        // - req: "CharacterName" (requires this char in roster)
+        
         const unitsDB = [
             // HOUSE STARK
-            { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, img: getImg("Sworn Sword", "2c3e50") },
-            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, img: getImg("Berserkers", "2c3e50") },
-            { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, img: getImg("Greataxes", "2c3e50") },
-            { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, img: getImg("Ravagers", "2c3e50") },
-            { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, img: getImg("Cavaliers", "2c3e50") },
-            { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, img: getImg("Sworn Shields", "2c3e50") },
-            { id: 7, name: "Stark Outriders", faction: "House Stark", type: "COMBAT", cost: 6, img: getImg("Outriders", "2c3e50") },
-            { id: 8, name: "Stark Archers", faction: "House Stark", type: "COMBAT", cost: 6, img: getImg("Archers", "2c3e50") },
-            { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, img: getImg("Catelyn", "2c3e50") },
-            { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, img: getImg("Sansa", "2c3e50") },
-            { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, img: getImg("Rodrick", "2c3e50") },
-            { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, img: getImg("Howland", "2c3e50") },
-            { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, img: getImg("Eddard", "2c3e50") },
+            { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ss.png" },
+            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ub.png" },
+            { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ug.png" },
+            { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ur.png" },
+            { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/tc.png" },
+            { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ts.png" },
+            { id: 7, name: "Stark Outriders", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/or.png" },
+            { id: 8, name: "Stark Bowmen", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/bm.png" },
+            
+            // GREY WIND (Unique & Require Robb)
+            { id: 9, name: "Grey Wind", faction: "House Stark", type: "COMBAT", cost: 3, unitType: "Monster", isUnique: true, req: "Robb Stark", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/gw.png" },
+
+            { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/cs.png" },
+            { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/ss.png" },
+            { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/rc.png" },
+            { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/hr.png" },
+            { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/es.png" },
 
             // HOUSE BOLTON
-            { id: 50, name: "Dreadfort Cutthroats", faction: "House Bolton", type: "COMBAT", cost: 5, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-dreadfort-cutthroats-c.png" },
-            { id: 51, name: "Dreadfort Spearmen", faction: "House Bolton", type: "COMBAT", cost: 5, img: getImg("Spearmen", "c0392b") },
-            { id: 52, name: "Dreadfort Bastard's Girls", faction: "House Bolton", type: "COMBAT", cost: 7, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-bastards-girls-c.png" },
-            { id: 53, name: "Dreadfort Flayed Men", faction: "House Bolton", type: "COMBAT", cost: 8, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-flayed-men-c.png" },
-            { id: 54, name: "Dreadfort Archers", faction: "House Bolton", type: "COMBAT", cost: 6, img: getImg("Archers", "c0392b") },
-            { id: 55, name: "Dreadfort Blackguards", faction: "House Bolton", type: "COMBAT", cost: 7, img: getImg("Blackguards", "c0392b") },
-            { id: 56, name: "Bloody Mummers Skirmishers", faction: "House Bolton", type: "COMBAT", cost: 6, img: getImg("Skirmishers", "c0392b") },
-            { id: 57, name: "Bloody Mummers Zorse Riders", faction: "House Bolton", type: "COMBAT", cost: 6, img: getImg("Zorse Riders", "c0392b") },
-            { id: 70, name: "Ramsay Bolton", faction: "House Bolton", type: "NCU", cost: 5, img: getImg("Ramsay NCU", "c0392b") },
-            { id: 71, name: "Walder Frey", faction: "House Bolton", type: "NCU", cost: 5, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/neutral-walder-frey-aoc-c.png" },
-            { id: 72, name: "Jeyne Pool", faction: "House Bolton", type: "NCU", cost: 6, img: getImg("Jeyne", "c0392b") },
-            { id: 73, name: "Walda Frey", faction: "House Bolton", type: "NCU", cost: 6, img: getImg("Walda", "c0392b") },
-            { id: 74, name: "Roose Bolton", faction: "House Bolton", type: "NCU", cost: 7, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-roose-bolton-tll-c.png" }
+            { id: 50, name: "Dreadfort Cutthroats", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ct.png" },
+            { id: 51, name: "Dreadfort Spearmen", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/sp.png" },
+            { id: 52, name: "Dreadfort Bastard's Girls", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/bg.png" },
+            { id: 53, name: "Dreadfort Flayed Men", faction: "House Bolton", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/fm.png" },
+            { id: 54, name: "Dreadfort Archers", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/a.png" },
+            { id: 55, name: "Dreadfort Blackguards", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/db.png" },
+            { id: 56, name: "Bloody Mummer Skirmishers", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ms.png" },
+            { id: 57, name: "Bloody Mummer Zorse Riders", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/mz.png" },
+            { id: 70, name: "Tybald", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/t.png" },
+            { id: 70, name: "Ramsay Bolton", faction: "House Bolton", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/rs.png" },
+            { id: 71, name: "Walder Frey", faction: "House Bolton", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/wf.png" },
+            { id: 72, name: "Jeyne Pool", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/jp.png" },
+            { id: 73, name: "Walda Frey", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/fw.png" },
+            { id: 74, name: "Roose Bolton", faction: "House Bolton", type: "NCU", cost: 7, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/rb.png" }
         ];
 
         const attachmentsDB = [
             // STARK
-            { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, img: getImg("Robb (C)", "f1c40f") },
-            { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, img: getImg("Robb", "2c3e50") },
-            { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, img: getImg("Brynden (C)", "f1c40f") },
-            { id: 103, name: "Brynden Tully", faction: "House Stark", cost: 2, isCommander: false, img: getImg("Brynden", "2c3e50") },
-            { id: 104, name: "Greatjon Umber (C)", faction: "House Stark", cost: 0, isCommander: true, img: getImg("Greatjon (C)", "f1c40f") },
-            { id: 105, name: "Greatjon Umber", faction: "House Stark", cost: 2, isCommander: false, img: getImg("Greatjon", "2c3e50") },
-            { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, img: getImg("Capt", "2c3e50") },
-            { id: 107, name: "Umber Champion", faction: "House Stark", cost: 1, isCommander: false, img: getImg("Champion", "2c3e50") },
-            { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, img: getImg("Guardian", "2c3e50") },
+            { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
+            { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
+            { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/bt.png" },
+            { id: 103, name: "Brynden Tully", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/bt.png" },
+            { id: 104, name: "Greatjon Umber (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/gu.png" },
+            { id: 105, name: "Greatjon Umber", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/gu.png" },
+            { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/ss.png" },
+            { id: 107, name: "Umber Champion", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/uc.png" },
+            { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/wg.png" },
 
             // BOLTON
-            { id: 200, name: "Ramsay Snow (C)", faction: "House Bolton", cost: 0, isCommander: true, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-ramsay-snow-tbib-c.png" },
-            { id: 201, name: "Ramsay Snow", faction: "House Bolton", cost: 2, isCommander: false, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-ramsay-snow-tbib-c.png" },
-            { id: 202, name: "Roose Bolton (C)", faction: "House Bolton", cost: 0, isCommander: true, img: getImg("Roose (C)", "f1c40f") },
-            { id: 203, name: "Roose Bolton", faction: "House Bolton", cost: 2, isCommander: false, img: getImg("Roose", "c0392b") },
-            { id: 204, name: "Steelshanks Walton (C)", faction: "House Bolton", cost: 0, isCommander: true, img: getImg("Walton (C)", "f1c40f") },
-            { id: 205, name: "Steelshanks Walton", faction: "House Bolton", cost: 2, isCommander: false, img: getImg("Walton", "c0392b") },
-            { id: 206, name: "Vargo Hoat (C)", faction: "House Bolton", cost: 0, isCommander: true, img: getImg("Vargo (C)", "f1c40f") },
-            { id: 207, name: "Vargo Hoat", faction: "House Bolton", cost: 2, isCommander: false, img: getImg("Vargo", "c0392b") },
-            { id: 208, name: "Damon Dance-For-Me", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Damon", "c0392b") },
-            { id: 209, name: "Ben Bones", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Ben Bones", "c0392b") },
-            { id: 210, name: "Skinner", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Skinner", "c0392b") },
-            { id: 211, name: "Sour Alyn", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Sour Alyn", "c0392b") },
-            { id: 212, name: "Grunt", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Grunt", "c0392b") },
-            { id: 213, name: "Rorge", faction: "House Bolton", cost: 2, isCommander: false, img: getImg("Rorge", "c0392b") },
-            { id: 214, name: "Bitter", faction: "House Bolton", cost: 0, isCommander: false, img: getImg("Bitter", "c0392b") },
-            { id: 215, name: "Theon Greyjoy", faction: "House Bolton", cost: 0, isCommander: false, img: getImg("Theon", "c0392b") },
-            { id: 216, name: "Dreadfort Captain", faction: "House Bolton", cost: 1, isCommander: false, img: "https://asoiaf-tmg-discord-bot.s3.amazonaws.com/images/bolton-dreadfort-captain-c.png" },
-            { id: 217, name: "Dreadfort Flayer", faction: "House Bolton", cost: 1, isCommander: false, img: getImg("Flayer", "c0392b") },
+            { id: 200, name: "Ramsay Snow (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
+            { id: 201, name: "Ramsay Snow", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
+            { id: 202, name: "Roose Bolton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
+            { id: 203, name: "Roose Bolton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
+            { id: 204, name: "Steelshanks Walton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
+            { id: 205, name: "Steelshanks Walton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
+            { id: 206, name: "Vargo Hoat (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/vh.png" },
+            { id: 207, name: "Vargo Hoat", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/vh.png" },
+            { id: 208, name: "Damon Dance-For-Me", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/dd.png" },
+            { id: 209, name: "Ben Bones", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/bb.png" },
+            { id: 210, name: "Skinner", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/s.png" },
+            { id: 211, name: "Sour Alyn", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sa.png" },
+            { id: 212, name: "Grunt", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/g.png" },
+            { id: 213, name: "Rorge", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/ro.png" },
+            { id: 214, name: "Bitter", faction: "House Bolton", cost: 0, isCommander: false, isUnique: true, attType: 4, req: "Rorge", unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/bi.png" },
+            { id: 215, name: "Theon Greyjoy", faction: "House Bolton", cost: 0, isCommander: false, isUnique: true, attType: 4, req: "Ramsay Snow", unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/r.png" },
+            { id: 216, name: "Dreadfort Captain", faction: "House Bolton", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/dc.png" },
+            { id: 217, name: "Dreadfort Flayer", faction: "House Bolton", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/df.png" },
         ];
 
-        // --- STATE ---
-        const MAX_MAIN = 40;
-        const MAX_FREE = 3;
-        
-        let activeFaction = "House Stark";
-        let roster = [];
-        let currentUnitIndex = null; 
+        const factionDecks = {
+            "House Stark": [
+                { name: "The Cold Wind Blows", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/cw.png" },
+                { name: "Northern Ferocity", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/nf.png" },
+                { name: "Devastating Impact", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/di.png" },
+                { name: "Winter Is Coming", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/wc.png" },
+                { name: "Swift Reposition", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/sr.png" },
+                { name: "The Pack Survives", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ps.png" },
+                { name: "The North Endures", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ne.png" }
+            ],
+            "House Bolton": [
+                { name: "A Flayed Men Has No Secrets", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fm.png" },
+                { name: "Our Blades Are Sharp", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ob.png" },
+                { name: "Fear Keeps A Man Alive", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fk.png" },
+                { name: "Sadistic Games", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sg.png" },
+                { name: "Flay Them All!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ft.png" },
+                { name: "Horrific Reputation", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/hr.png" },
+                { name: "Cruelty And Cunning", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cc.png" }
+            ]
+        };
 
-        // --- INIT ---
-        renderStore();
-        updateUI();
+        const commanderDecks = {
+            "Robb Stark (C)": [
+                { name: "Cunning Retreat", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/cr.png" },
+                { name: "Hit And Run", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/hr.png" },
+                { name: "Encircle The Prey", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ep.png" }
+            ],
+            "Greatjon Umber (C)": [
+                { name: "Berserker Tactics", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/bt.png" },
+                { name: "Death Before Chains!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/dc.png" },
+                { name: "Most Fearless In The North", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/mf.png" }
+            ],
+            "Brynden Tully (C)": [
+                { name: "Blackfish's Defiance", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/bd.png" },
+                { name: "Family, Duty, Honor", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/fdh.png" },
+                { name: "Tully Resolve", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/tr.png" }
+            ],
+            "Roose Bolton (C)": [
+                { name: "Whispered Threats", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/wt.png" },
+                { name: "Cold Regards", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cr.png" },
+                { name: "Dreadfort Secrets", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ds.png" }
+            ],
+            "Ramsay Snow (C)": [
+                { name: "Echoes Of Agony", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ea.png" },
+                { name: "Broken Playthings", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/bp.png" },
+                { name: "Spoil In Flesh", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sf.png" }
+            ],
+            "Vargo Hoat (C)": [
+                { name: "The Crippler's Infamy", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ci.png" },
+                { name: "Butcher's Work", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/bw.png" },
+                { name: "Savored Suffering", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ss.png" }
+            ],
+            "Steelshanks Walton (C)": [
+                { name: "Steelshanks's Watch", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sw.png" },
+                { name: "Fear Is Loyalty", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fl.png" },
+                { name: "Disciplined Execution", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/de.png" }
+            ]
+        };
 
-        // --- LIGHTBOX ---
-        function openLightbox(src) {
-            document.getElementById('lightbox-img').src = src;
-            document.getElementById('lightbox').style.display = 'flex';
-        }
+        // --- STATE & LOGIC ---
+        const MAX_MAIN = 40; const MAX_FREE = 3;
+        let activeFaction = "House Stark"; let roster = []; let currentUnitIndex = null; 
+
+        renderStore(); updateUI();
+
+        function openLightbox(src) { if(!src) return; document.getElementById('lightbox-img').src = src; document.getElementById('lightbox').style.display = 'flex'; }
         function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
-
-        // --- LOGIC ---
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
         function setFaction(f) {
             activeFaction = f;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -299,60 +316,65 @@
             renderStore();
         }
 
-        function isCommanderInRoster() {
-            for(let item of roster) {
-                if(item.attachments.some(a => a.isCommander)) return true;
-            }
-            return false;
-        }
-
+        function isCommanderInRoster() { return roster.some(item => item.attachments.some(a => a.isCommander)); }
         function getCommanderName() {
             for(let item of roster) {
                 const comm = item.attachments.find(a => a.isCommander);
                 if(comm) return comm.name;
             }
-            return "None";
+            return null;
         }
 
-        // --- NEW CALCULATION LOGIC (40 + 3) ---
-        function calculateStats() {
-            let uPts = 0;
-            let aPts = 0;
+        function getCharacterNamesInRoster() {
+            let names = new Set();
             roster.forEach(item => {
-                uPts += item.unit.cost;
-                item.attachments.forEach(a => aPts += a.cost);
+                // Pour les attachements, on prend le nom de base
+                item.attachments.forEach(a => names.add(getBaseName(a.name)));
+                // Pour les unités (comme Grey Wind), on prend aussi leur nom si elles sont uniques
+                if (item.unit.isUnique) {
+                    names.add(getBaseName(item.unit.name));
+                }
             });
+            return names;
+        }
 
-            // On déduit jusqu'à 3 pts du total des attachements
+        function calculateStats() {
+            let uPts = 0; let aPts = 0;
+            roster.forEach(item => { uPts += item.unit.cost; item.attachments.forEach(a => aPts += a.cost); });
             let freeUsed = Math.min(aPts, MAX_FREE);
-            // Le reste des points d'attachements déborde sur le budget principal
             let attSpill = aPts - freeUsed;
+            return { mainUsed: uPts + attSpill, freeUsed, totalUnit: uPts, totalAtt: aPts };
+        }
 
-            let mainUsed = uPts + attSpill;
+        function checkUnitAvailability(unit) {
+            // 1. Cost check
+            if (!checkAffordability(unit.cost, 'UNIT')) return false;
 
-            return {
-                mainUsed,
-                freeUsed,
-                totalUnit: uPts,
-                totalAtt: aPts
-            };
+            // 2. Uniqueness check
+            // Si l'unité est unique, on vérifie si elle est déjà dans le roster
+            if (unit.isUnique) {
+                if (roster.some(item => item.unit.name === unit.name)) return false;
+            }
+
+            // 3. Dependency check (ex: Grey Wind requires Robb Stark)
+            if (unit.req) {
+                const presentChars = getCharacterNamesInRoster();
+                // On vérifie si le personnage requis est présent (soit en attachement, soit potentiellement en unité si applicable)
+                if (!presentChars.has(unit.req)) return false;
+            }
+
+            return true;
         }
 
         function checkAffordability(cost, type) {
             const stats = calculateStats();
-            
-            // Si on ajoute une unité, ça tape direct dans le Main budget
             if(type === 'UNIT' || type === 'COMBAT' || type === 'NCU') {
                 return (stats.mainUsed + cost) <= MAX_MAIN;
-            } 
-            // Si on ajoute un attachement, on doit recalculer le débordement
-            else {
+            } else {
                 let newAttTotal = stats.totalAtt + cost;
                 let newFreeUsed = Math.min(newAttTotal, MAX_FREE);
                 let newSpill = newAttTotal - newFreeUsed;
-                
-                let newMainUsed = stats.totalUnit + newSpill;
-                return newMainUsed <= MAX_MAIN;
+                return (stats.totalUnit + newSpill) <= MAX_MAIN;
             }
         }
 
@@ -360,194 +382,150 @@
             const combatStore = document.getElementById('store-combat');
             const ncuStore = document.getElementById('store-ncu');
             combatStore.innerHTML = ''; ncuStore.innerHTML = '';
-            
-            const units = unitsDB.filter(u => u.faction === activeFaction);
-
-            units.forEach(u => {
-                const canAfford = checkAffordability(u.cost, 'UNIT');
+            unitsDB.filter(u => u.faction === activeFaction).forEach(u => {
+                // Nouvelle fonction de vérification pour les unités
+                const canAfford = checkUnitAvailability(u);
                 const el = createCard(u, canAfford, () => addUnit(u));
-                if(u.type === 'COMBAT') combatStore.appendChild(el);
-                else ncuStore.appendChild(el);
+                if(u.type === 'COMBAT') combatStore.appendChild(el); else ncuStore.appendChild(el);
             });
         }
 
         function createCard(data, active, onClick) {
             const div = document.createElement('div');
             div.className = `card ${!active ? 'disabled' : ''}`;
-            
-            let badge = '';
-            if(data.isCommander) badge = `<div class="commander-badge">COMMANDER</div>`;
-
-            div.innerHTML = `
-                ${badge}
-                <div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')">
-                    <img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'">
-                </div>
-                <div class="card-info" onclick="${active ? 'addUnitByID(' + data.id + ')' : ''}">
-                    <div class="card-name">${data.name}</div>
-                    <div class="card-cost">${data.cost} pts</div>
-                </div>
-            `;
+            let badge = data.isCommander ? `<div class="commander-badge">COMMANDER</div>` : '';
+            div.innerHTML = `${badge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div><div class="card-cost">${data.cost} pts</div></div>`;
             div.querySelector('.card-info').onclick = active ? onClick : null;
             return div;
         }
 
-        // --- ROSTER ACTIONS ---
-        function addUnit(unit) {
-            roster.push({ unit: {...unit}, attachments: [] });
-            updateUI();
-        }
-
-        function removeUnit(idx) {
-            roster.splice(idx, 1);
-            updateUI();
-        }
-
+        function addUnit(unit) { roster.push({ unit: {...unit}, attachments: [] }); updateUI(); }
+        function removeUnit(idx) { roster.splice(idx, 1); updateUI(); }
+        
         function openAttModal(idx) {
             currentUnitIndex = idx;
-            const modalGrid = document.getElementById('att-store-grid');
-            modalGrid.innerHTML = '';
+            const modalGrid = document.getElementById('att-store-grid'); modalGrid.innerHTML = '';
             
             const hasComm = isCommanderInRoster();
-            const atts = attachmentsDB.filter(a => a.faction === roster[idx].unit.faction);
+            const usedChars = getCharacterNamesInRoster();
+            
+            const targetUnit = roster[idx].unit;
+            const targetUnitType = targetUnit.unitType || 'Infantry';
+            const unitAtts = roster[idx].attachments;
+
+            const atts = attachmentsDB.filter(a => a.faction === targetUnit.faction);
+
+            // Sorting: Commanders first
+            atts.sort((a, b) => (a.isCommander === b.isCommander) ? 0 : a.isCommander ? -1 : 1);
 
             document.getElementById('commander-msg').style.display = hasComm ? 'block' : 'none';
 
             atts.forEach(a => {
                 let canAfford = checkAffordability(a.cost, 'ATTACHMENT');
-                
-                // Règle Commander
-                if(a.isCommander && hasComm) canAfford = false;
-                
-                const el = createCard(a, canAfford, () => addAttachment(a));
-                modalGrid.appendChild(el);
-            });
+                let baseName = getBaseName(a.name);
+                let attType = a.unitType || 'Infantry';
+                let slotType = a.attType || 1;
 
+                // 1. Rules
+                if(a.isCommander && hasComm) canAfford = false;
+                if(a.isUnique && usedChars.has(baseName)) canAfford = false;
+                if(attType !== targetUnitType) canAfford = false;
+
+                // 2. Slot Restrictions
+                if(slotType === 1 && unitAtts.some(x => x.attType === 1)) canAfford = false;
+                if(slotType === 3 && unitAtts.some(x => x.attType === 3)) canAfford = false;
+                if(slotType === 4 && a.req) {
+                    if(!unitAtts.some(x => getBaseName(x.name) === a.req)) canAfford = false;
+                }
+
+                modalGrid.appendChild(createCard(a, canAfford, () => addAttachment(a)));
+            });
             document.getElementById('attModal').style.display = 'flex';
         }
 
-        function addAttachment(att) {
-            if(currentUnitIndex !== null) {
-                roster[currentUnitIndex].attachments.push({...att});
-                closeModal();
-                updateUI();
+        function addAttachment(att) { if(currentUnitIndex!==null) { roster[currentUnitIndex].attachments.push({...att}); closeModal('attModal'); updateUI(); } }
+        function removeAttachment(uIdx, aIdx) { roster[uIdx].attachments.splice(aIdx, 1); updateUI(); }
+        function resetAll() { if(confirm('Are you sure you want to reset the list?')) { roster = []; updateUI(); } }
+
+        function openTacticsModal() {
+            const fGrid = document.getElementById('faction-tactics-grid');
+            const cGrid = document.getElementById('commander-tactics-grid');
+            const cTitle = document.getElementById('commander-tactics-title');
+            const msg = document.getElementById('no-commander-msg');
+            const fTitle = document.getElementById('faction-tactics-title');
+            
+            fGrid.innerHTML = '';
+            fTitle.innerText = `Faction Cards : ${activeFaction}`;
+            (factionDecks[activeFaction]||[]).forEach(c => fGrid.appendChild(createTacticCard(c)));
+
+            cGrid.innerHTML = '';
+            const commName = getCommanderName();
+            if(commName && commanderDecks[commName]) {
+                cTitle.style.display = 'block'; cGrid.style.display = 'grid'; msg.style.display = 'none';
+                cTitle.innerText = `Commander Cards : ${commName}`;
+                commanderDecks[commName].forEach(c => cGrid.appendChild(createTacticCard(c)));
+            } else {
+                cTitle.style.display = 'none'; cGrid.style.display = 'none'; msg.style.display = 'block';
+                msg.innerText = commName ? `No cards defined for ${commName}` : "No Commander selected.";
             }
+            document.getElementById('tacticsModal').style.display = 'flex';
+        }
+        function createTacticCard(card) {
+            const div = document.createElement('div'); div.className = 'tactic-card';
+            div.innerHTML = `<img src="${card.img}" alt="${card.name}">`;
+            div.onclick = () => openLightbox(card.img);
+            return div;
         }
 
-        function removeAttachment(uIdx, aIdx) {
-            roster[uIdx].attachments.splice(aIdx, 1);
-            updateUI();
-        }
-
-        function closeModal() { document.getElementById('attModal').style.display = 'none'; }
-        function resetAll() { if(confirm('Tout effacer ?')) { roster = []; updateUI(); } }
-
-        // --- UI RENDER ---
         function updateUI() {
             const stats = calculateStats();
             const hasComm = isCommanderInRoster();
-
             document.getElementById('mainPts').innerText = stats.mainUsed;
             document.getElementById('freePts').innerText = stats.freeUsed;
-            
             document.getElementById('unitPts').innerText = stats.totalUnit;
             document.getElementById('attPts').innerText = stats.totalAtt;
-
+            
             const commInd = document.getElementById('commanderIndicator');
-            if(hasComm) {
-                commInd.innerText = "Commander OK";
-                commInd.className = "commander-status status-ok";
-            } else {
-                commInd.innerText = "Commander Requis";
-                commInd.className = "commander-status status-missing";
-            }
+            commInd.innerText = hasComm ? "Commander OK" : "Commander Required";
+            commInd.className = hasComm ? "commander-status status-ok" : "commander-status status-missing";
 
             renderStore();
-
-            const listCombat = document.getElementById('roster-list-combat');
-            const listNCU = document.getElementById('roster-list-ncu');
-            listCombat.innerHTML = ''; listNCU.innerHTML = '';
+            const lC = document.getElementById('roster-list-combat'); lC.innerHTML = '';
+            const lN = document.getElementById('roster-list-ncu'); lN.innerHTML = '';
 
             roster.forEach((item, idx) => {
-                const el = document.createElement('div');
-                el.className = 'roster-unit';
-
+                const el = document.createElement('div'); el.className = 'roster-unit';
                 let attHTML = '';
                 if(item.unit.type === 'COMBAT') {
                     item.attachments.forEach((a, aIdx) => {
-                        const styleComm = a.isCommander ? 'is-commander' : '';
-                        const nameComm = a.isCommander ? '👑 ' : '+ ';
-                        attHTML += `
-                            <div class="att-row ${styleComm}">
-                                <span>${nameComm}${a.name}</span>
-                                <div style="display:flex; gap:10px;">
-                                    <b>${a.cost} pts</b>
-                                    <span style="color:#c0392b; cursor:pointer;" onclick="removeAttachment(${idx}, ${aIdx})">X</span>
-                                </div>
-                            </div>
-                        `;
+                        const sComm = a.isCommander ? 'is-commander' : '';
+                        const nComm = a.isCommander ? '👑 ' : '+ ';
+                        attHTML += `<div class="att-row ${sComm}"><span class="att-name-link" onclick="openLightbox('${a.img}')">${nComm}${a.name}</span><div style="display:flex; gap:10px;"><b>${a.cost} pts</b><span style="color:#c0392b; cursor:pointer;" onclick="removeAttachment(${idx}, ${aIdx})">X</span></div></div>`;
                     });
-                    attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Ajouter Attachement</button>`;
+                    attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Add Attachment</button>`;
                 }
-
-                el.innerHTML = `
-                    <div class="unit-header">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')">
-                            <div>
-                                <div><b>${item.unit.name}</b> <small>(${item.unit.type})</small></div>
-                                <div style="color:#666; font-size:0.8rem;">${item.unit.cost} pts</div>
-                            </div>
-                        </div>
-                        <button onclick="removeUnit(${idx})" style="border:none; bg:none; color:red; font-size:1.2rem; cursor:pointer;">&times;</button>
-                    </div>
-                    ${attHTML}
-                `;
-
-                if(item.unit.type === 'COMBAT') listCombat.appendChild(el);
-                else listNCU.appendChild(el);
+                
+                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div><b>${item.unit.name}</b></div><div style="color:#666; font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; bg:none; color:red; font-size:1.2rem; cursor:pointer;">&times;</button></div>${attHTML}`;
+                
+                if(item.unit.type === 'COMBAT') lC.appendChild(el); else lN.appendChild(el);
             });
         }
-        
+
         async function shareList() {
             const stats = calculateStats();
-            const commander = getCommanderName();
-            const combatUnits = roster.filter(i => i.unit.type === 'COMBAT');
-            const ncuUnits = roster.filter(i => i.unit.type === 'NCU');
-
-            let text = `Faction: ${activeFaction}\n`;
-            text += `Commander: ${commander}\n`;
-            text += `Points: ${stats.mainUsed} / 40 (Free Att: ${stats.freeUsed}/3)\n\n`;
-
-            if(combatUnits.length > 0) {
-                text += `Battlefield Units\n`;
-                combatUnits.forEach(item => {
-                    text += ` • ${item.unit.name} (${item.unit.cost})\n`;
-                    item.attachments.forEach(att => {
-                        text += `     ${att.name} (${att.cost})\n`;
-                    });
-                });
-                text += `\n`;
-            }
-
-            if(ncuUnits.length > 0) {
-                text += `Council Units\n`;
-                ncuUnits.forEach(item => {
-                    text += ` • ${item.unit.name} (${item.unit.cost})\n`;
-                });
-            }
-
-            try {
-                await navigator.clipboard.writeText(text);
-                const btn = document.querySelector('.btn-share');
-                const prev = btn.innerText;
-                btn.innerText = "Copié !";
-                setTimeout(() => btn.innerText = prev, 2000);
-            } catch (err) { alert("Erreur copie"); }
+            const commander = getCommanderName() || "None";
+            const cU = roster.filter(i => i.unit.type === 'COMBAT');
+            const nU = roster.filter(i => i.unit.type === 'NCU');
+            let t = `Faction: ${activeFaction}\nCommander: ${commander}\nPoints: ${stats.mainUsed}/40 (Free Att: ${stats.freeUsed}/3)\n\n`;
+            if(cU.length) { t += `Battlefield Units\n`; cU.forEach(i => { t += ` • ${i.unit.name} (${i.unit.cost})\n`; i.attachments.forEach(a => t += `     ${a.name} (${a.cost})\n`); }); t += `\n`; }
+            if(nU.length) { t += `Council Units\n`; nU.forEach(i => t += ` • ${i.unit.name} (${i.unit.cost})\n`); }
+            try { await navigator.clipboard.writeText(t); const b = document.querySelector('.btn-share'); const p = b.innerText; b.innerText = "Copied!"; setTimeout(() => b.innerText = p, 2000); } catch (e) { alert("Error copying list"); }
         }
 
-        window.onclick = (e) => { if(e.target == document.getElementById('attModal')) closeModal(); }
+        window.onclick = (e) => {
+            if(e.target == document.getElementById('attModal')) closeModal('attModal');
+            if(e.target == document.getElementById('tacticsModal')) closeModal('tacticsModal');
+        }
     </script>
 </body>
-
 </html>
