@@ -8,6 +8,7 @@ Remplacer : img: "liendelimage" }
 ------------------------ Personnage commun et unique :
 
 isCommander: true
+
 isUnique: true
 
 Ou "false" évidemment :)
