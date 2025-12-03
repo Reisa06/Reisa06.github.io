@@ -6,87 +6,127 @@
     <title>Reisa ASOIAF Builder</title>
     <style>
         :root {
+            /* Couleurs de base (Mode Clair) */
+            --bg: #f0f2f5;
+            --component-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border: #dddddd;
+            --hover-bg: #f9f9f9;
+            
+            /* Couleurs Factions & UI */
             --stark: #2c3e50;
             --bolton: #c0392b;
             --gold: #f1c40f;
             --share: #3498db;
             --tactics: #9b59b6;
-            --bg: #f0f2f5;
             --free-green: #27ae60;
+            --pill-bg: #eafaf1;
+            
+            /* Ombres */
+            --shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --header-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: #333; }
+        /* MODE SOMBRE */
+        body.dark-mode {
+            --bg: #121212;
+            --component-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #333333;
+            --hover-bg: #2a2a2a;
+            
+            --pill-bg: #1b3a29; /* Vert sombre pour le pillule */
+            
+            --shadow: 0 2px 5px rgba(0,0,0,0.5);
+            --header-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
 
         /* HEADER */
         header {
-            position: sticky; top: 0; background: white; padding: 10px 20px;
-            border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky; top: 0; background: var(--component-bg); padding: 10px 20px;
+            border-radius: 8px; box-shadow: var(--header-shadow);
             z-index: 100; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.3s;
         }
         .total-row { display: flex; align-items: baseline; gap: 10px; }
-        .total-points { font-size: 2rem; font-weight: 800; color: #333; }
-        .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: #eafaf1; padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
+        .total-points { font-size: 2rem; font-weight: 800; color: var(--text-main); }
+        .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: var(--pill-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
         .commander-status { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
         .status-ok { background: #dff9fb; color: #2ecc71; border: 1px solid #2ecc71; }
+        body.dark-mode .status-ok { background: #133629; } /* Ajustement dark mode */
+        
         .status-missing { background: #ff797933; color: #e74c3c; border: 1px solid #e74c3c; }
         .header-actions { display: flex; gap: 10px; }
         .btn-action { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s;}
         .btn-reset { background: #e74c3c; }
         .btn-share { background: var(--share); }
         .btn-tactics { background: var(--tactics); }
+        .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center;}
 
         /* TABS */
         .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
-        .tab-btn { padding: 10px 25px; border: 2px solid transparent; background: white; cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s; text-transform: uppercase; }
-        .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .stark-btn { color: var(--stark); } .bolton-btn { color: var(--bolton); }
+        .tab-btn { padding: 10px 25px; border: 2px solid transparent; background: var(--component-bg); cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s; text-transform: uppercase; color: var(--text-muted); }
+        .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: var(--shadow); }
+        .stark-btn.active { color: var(--stark); } 
+        .bolton-btn.active { color: var(--bolton); }
+        
+        /* Ajustement couleurs tabs en dark mode pour visibilité */
+        body.dark-mode .stark-btn.active { color: #5dade2; }
+        body.dark-mode .bolton-btn.active { color: #e74c3c; }
 
         /* LAYOUT */
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
-        .column { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .column { background: var(--component-bg); padding: 20px; border-radius: 10px; box-shadow: var(--shadow); transition: background 0.3s; }
         .col-store { flex: 6; }
         .col-roster { flex: 4; position: sticky; top: 90px; max-height: 85vh; overflow-y: auto; }
-        h3 { border-bottom: 2px solid #eee; padding-bottom: 8px; margin-top: 25px; color: #555; font-size: 0.9rem; text-transform: uppercase; }
-        .roster-header { background: #eee; padding: 8px; font-weight: bold; text-align: center; margin-bottom: 10px; border-radius: 4px; color: #555; font-size: 0.85rem; letter-spacing: 1px; }
+        h3 { border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-top: 25px; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+        .roster-header { background: var(--hover-bg); padding: 8px; font-weight: bold; text-align: center; margin-bottom: 10px; border-radius: 4px; color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; }
 
         /* CARDS */
         .grid-store { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .card { border: 1px solid #ddd; border-radius: 6px; background: white; overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card { border: 1px solid var(--border); border-radius: 6px; background: var(--component-bg); overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
         .card.disabled { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
         .card-img-wrap { width: 100%; height: 80px; overflow: hidden; cursor: zoom-in; }
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
         .card-img-wrap:hover img { transform: scale(1.1); }
-        .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: white;}
-        .card-info:hover { background: #f9f9f9; }
+        .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: var(--component-bg); color: var(--text-main); }
+        .card-info:hover { background: var(--hover-bg); }
         .card-name { font-weight: bold; font-size: 0.8rem; line-height: 1.2; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .card-cost { display: inline-block; background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-top: 5px; }
+        body.dark-mode .card-cost { background: #555; }
         .commander-badge { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; background: linear-gradient(90deg, #f1c40f, #f39c12); color: white; font-size: 0.7rem; font-weight: bold; text-align: center; padding: 2px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
 
         /* ROSTER */
-        .roster-unit { border: 1px solid #e1e1e1; border-radius: 6px; margin-bottom: 15px; background: white; }
-        .unit-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: #fdfdfd; border-bottom: 1px solid #f0f0f0; }
-        .unit-thumb { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; object-position: top; cursor: zoom-in; border: 1px solid #ccc;}
-        .att-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid #eee; font-size: 0.85rem; background: #f9f9f9; }
+        .roster-unit { border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; background: var(--component-bg); }
+        .unit-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: var(--component-bg); border-bottom: 1px solid var(--border); }
+        .unit-thumb { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; object-position: top; cursor: zoom-in; border: 1px solid var(--border);}
+        .att-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; background: var(--hover-bg); }
         .att-row.is-commander { background: #fffcf0; border-left: 3px solid var(--gold); }
-        .att-name-link { cursor: zoom-in; font-weight: bold; color: #333; transition: color 0.2s; }
+        body.dark-mode .att-row.is-commander { background: #3b3618; border-left: 3px solid var(--gold); }
+        
+        .att-name-link { cursor: zoom-in; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
         .att-name-link:hover { color: var(--share); text-decoration: underline; }
-        .btn-add { width: 100%; border: 1px dashed #ccc; background: none; padding: 8px; cursor: pointer; color: #777; }
-        .btn-add:hover { background: #eee; color: #333; }
+        .btn-add { width: 100%; border: 1px dashed var(--border); background: none; padding: 8px; cursor: pointer; color: var(--text-muted); }
+        .btn-add:hover { background: var(--hover-bg); color: var(--text-main); }
 
         /* MODALS & LIGHTBOX */
         .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
         .lightbox img { max-width: 90%; max-height: 90%; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); animation: zoomIn 0.2s; }
         .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
-        .modal-box { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
-        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; }
+        .modal-box { background: var(--component-bg); padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; color: var(--text-main); }
+        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; color: var(--text-main); }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
         /* TACTICS */
         .tactics-section { margin-bottom: 20px; }
-        .tactics-title { font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 10px; color: var(--tactics); }
+        .tactics-title { font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; color: var(--tactics); }
         .tactics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-        .tactic-card { border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: zoom-in; transition: transform 0.2s; aspect-ratio: 2.5/3.5; background: #eee;}
+        .tactic-card { border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); cursor: zoom-in; transition: transform 0.2s; aspect-ratio: 2.5/3.5; background: #eee;}
         .tactic-card:hover { transform: translateY(-3px); }
         .tactic-card img { width: 100%; height: 100%; object-fit: cover; }
     </style>
@@ -102,11 +142,13 @@
                 <div class="free-points">+ <span id="freePts">0</span>/3 Attachment Points</div>
                 <span id="commanderIndicator" class="commander-status status-missing">Commander Required</span>
             </div>
-            <div class="details-points" style="font-size:0.85rem; color:#777; margin-top:5px;">
+            <div class="details-points" style="font-size:0.85rem; color:var(--text-muted); margin-top:5px;">
                 Cost Units: <span id="unitPts">0</span> | Cost Attachments: <span id="attPts">0</span>
             </div>
         </div>
         <div class="header-actions">
+            <!-- BOUTON THEME -->
+            <button class="btn-action btn-theme" onclick="toggleTheme()" title="Changer le thème">🌗</button>
             <button class="btn-action btn-tactics" onclick="openTacticsModal()">Tactics Cards</button>
             <button class="btn-action btn-share" onclick="shareList()">Share List</button>
             <button class="btn-action btn-reset" onclick="resetAll()">Reset</button>
@@ -145,7 +187,7 @@
     <div id="tacticsModal" class="modal-bg">
         <div class="modal-box">
             <button class="close-btn" onclick="closeModal('tacticsModal')">&times;</button>
-            <h2 style="margin-top:0; color:#333;">Tactics Cards</h2>
+            <h2 style="margin-top:0; color:var(--text-main);">Tactics Cards</h2>
             <div class="tactics-section">
                 <div class="tactics-title" id="faction-tactics-title">Faction Cards</div>
                 <div class="tactics-grid" id="faction-tactics-grid"></div>
@@ -153,22 +195,31 @@
             <div class="tactics-section">
                 <div class="tactics-title" id="commander-tactics-title">Commander Cards</div>
                 <div class="tactics-grid" id="commander-tactics-grid"></div>
-                <p id="no-commander-msg" style="color:#777; font-style:italic; text-align:center;">No Commander selected.</p>
+                <p id="no-commander-msg" style="color:var(--text-muted); font-style:italic; text-align:center;">No Commander selected.</p>
             </div>
         </div>
     </div>
 
     <script>
+        // --- THEME MANAGEMENT ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        // Init Theme
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if(saved === 'dark') document.body.classList.add('dark-mode');
+        })();
+
         // --- HELPERS ---
         const getImg = (name, color) => `https://via.placeholder.com/200x150/${color}/fff?text=${encodeURIComponent(name.replace(' (C)', ''))}`;
         const getCardImg = (name, color) => `https://via.placeholder.com/200x280/${color}/fff?text=${encodeURIComponent(name)}`;
         const getBaseName = (name) => name.replace(' (C)', '').trim();
 
         // --- DATABASE ---
-        // New Props: 
-        // - isUnique: true (cannot add more than 1 in list)
-        // - req: "CharacterName" (requires this char in roster)
-        
         const unitsDB = [
             // HOUSE STARK
             { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ss.png" },
@@ -500,12 +551,12 @@
                     item.attachments.forEach((a, aIdx) => {
                         const sComm = a.isCommander ? 'is-commander' : '';
                         const nComm = a.isCommander ? '👑 ' : '+ ';
-                        attHTML += `<div class="att-row ${sComm}"><span class="att-name-link" onclick="openLightbox('${a.img}')">${nComm}${a.name}</span><div style="display:flex; gap:10px;"><b>${a.cost} pts</b><span style="color:#c0392b; cursor:pointer;" onclick="removeAttachment(${idx}, ${aIdx})">X</span></div></div>`;
+                        attHTML += `<div class="att-row ${sComm}"><span class="att-name-link" onclick="openLightbox('${a.img}')">${nComm}${a.name}</span><div style="display:flex; gap:10px;"><b>${a.cost} pts</b><span style="color:#e74c3c; cursor:pointer;" onclick="removeAttachment(${idx}, ${aIdx})">X</span></div></div>`;
                     });
                     attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Add Attachment</button>`;
                 }
                 
-                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div><b>${item.unit.name}</b></div><div style="color:#666; font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; bg:none; color:red; font-size:1.2rem; cursor:pointer;">&times;</button></div>${attHTML}`;
+                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div><b>${item.unit.name}</b></div><div style="color:var(--text-muted); font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; background:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-muted)'">&times;</button></div>${attHTML}`;
                 
                 if(item.unit.type === 'COMBAT') lC.appendChild(el); else lN.appendChild(el);
             });
