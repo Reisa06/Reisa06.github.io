@@ -23,6 +23,7 @@
             --terrain: #795548;
             --gamemode: #b7950b;
             --free-green: #27ae60;
+            --feedback: #1b5e20; /* Vert sombre pour Feedback */
             --pill-bg: #eafaf1;
             
             /* Ombres */
@@ -67,6 +68,7 @@
         .btn-tactics { background: var(--tactics); }
         .btn-terrain { background: var(--terrain); }
         .btn-gamemode { background: var(--gamemode); }
+        .btn-feedback { background: var(--feedback); }
         .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center;}
 
         /* TABS */
@@ -162,6 +164,7 @@
         </div>
         <div class="header-actions">
             <button class="btn-action btn-theme" onclick="toggleTheme()" title="Changer le thème">🌗</button>
+            <button class="btn-action btn-feedback" onclick="openFeedbackModal()">Feedback</button>
             <button class="btn-action btn-terrain" onclick="openTerrainModal()">Terrain</button>
             <button class="btn-action btn-gamemode" onclick="openGameModeModal()">Game Modes</button>
             <button class="btn-action btn-tactics" onclick="openTacticsModal()">Tactics Cards</button>
@@ -229,6 +232,27 @@
             <button class="close-btn" onclick="closeModal('gameModeModal')">&times;</button>
             <h2 style="margin-top:0; color:var(--text-main);">Game Modes</h2>
             <div class="tactics-grid" id="gamemode-grid"></div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal-bg">
+        <div class="modal-box" style="max-width: 550px; text-align: center;">
+            <button class="close-btn" onclick="closeModal('feedbackModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Pre-Season Feedback</h2>
+            
+            <p style="margin-bottom: 20px;">Download this pdf, feel free to complete this and submit it to the shared email address:</p>
+            
+            <!-- Section PDF -->
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+                <a href="https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf" target="_blank" style="color:var(--share); font-weight:bold; word-break: break-all; text-align:left; margin-right:10px;">Pre-Season-Feedback-2025.12.07.pdf</a>
+                <button class="btn-action btn-share" onclick="window.open('https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf', '_blank')" style="min-width: 80px;">Open</button>
+            </div>
+    
+            <!-- Section Email -->
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
+                <span id="cmonEmail" style="font-family: monospace; font-size: 1.1rem; font-weight: bold;">songtesting@cmon.com</span>
+                <button class="btn-action btn-feedback" onclick="copyEmail()" style="min-width: 80px;">Copy</button>
+            </div>
         </div>
     </div>
 
@@ -584,38 +608,51 @@
         }
 
         function openGameModeModal() {
-    const grid = document.getElementById('gamemode-grid');
-    grid.innerHTML = '';
-    
-    // On change l'affichage de Grille (Grid) à Colonne (Flex) pour avoir une liste de boutons
-    grid.style.display = 'flex';
-    grid.style.flexDirection = 'column';
-    grid.style.gap = '15px';
+            const grid = document.getElementById('gamemode-grid');
+            grid.innerHTML = '';
+            
+            // On change l'affichage de Grille (Grid) à Colonne (Flex) pour avoir une liste de boutons
+            grid.style.display = 'flex';
+            grid.style.flexDirection = 'column';
+            grid.style.gap = '15px';
 
-    gameModeCards.forEach(c => {
-        // Création du bouton
-        const btn = document.createElement('button');
-        
-        // On utilise les classes existantes pour garder le style visuel (couleur dorée)
-        btn.className = 'btn-action btn-gamemode'; 
-        
-        // Un peu de style spécifique pour ce menu
-        btn.style.width = '100%';
-        btn.style.padding = '15px';
-        btn.style.fontSize = '1.2rem';
-        btn.style.cursor = 'pointer';
-        
-        // Le texte du bouton
-        btn.innerText = c.name;
-        
-        // L'action : ouvrir l'image en grand (Lightbox) au clic
-        btn.onclick = () => openLightbox(c.img);
-        
-        grid.appendChild(btn);
-    });
+            gameModeCards.forEach(c => {
+                // Création du bouton
+                const btn = document.createElement('button');
+                btn.className = 'btn-action btn-gamemode'; 
+                btn.style.width = '100%';
+                btn.style.padding = '15px';
+                btn.style.fontSize = '1.2rem';
+                btn.style.cursor = 'pointer';
+                btn.innerText = c.name;
+                btn.onclick = () => openLightbox(c.img);
+                
+                grid.appendChild(btn);
+            });
 
-    document.getElementById('gameModeModal').style.display = 'flex';
-}
+            document.getElementById('gameModeModal').style.display = 'flex';
+        }
+
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'flex';
+        }
+
+        async function copyEmail() {
+            const email = "songtesting@cmon.com";
+            try {
+                await navigator.clipboard.writeText(email);
+                const btn = document.querySelector('#feedbackModal .btn-feedback'); 
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.style.backgroundColor = "#27ae60"; 
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                }, 2000);
+            } catch (e) {
+                alert("Erreur lors de la copie");
+            }
+        }
 
         function createTacticCard(card) {
             const div = document.createElement('div');
@@ -671,6 +708,7 @@
             if(e.target == document.getElementById('tacticsModal')) closeModal('tacticsModal');
             if(e.target == document.getElementById('terrainModal')) closeModal('terrainModal');
             if(e.target == document.getElementById('gameModeModal')) closeModal('gameModeModal');
+            if(e.target == document.getElementById('feedbackModal')) closeModal('feedbackModal');
         }
     </script>
 </body>
