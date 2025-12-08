@@ -46,3 +46,8 @@ Moteur de Restrictions (Invisible) :
     Règle Type 4 (Conditionnel) : Le bouton est grisé si l'attachement requis n'est pas trouvé dans l'unité.
 
     Ordre de recrutement : Selon ta règle pour le Type 1 ("ne peut pas être attaché à une unité qui a déjà un attachment"), il faut toujours ajouter le Type 1 en premier (le Capitaine), puis le Type 3 (le Bloody Mummer). Si tu mets le Type 3 en premier, le Type 1 sera bloqué car l'unité n'est plus vide.
+
+Terrain
+
+- La ligne "img" gère la miniature
+- La ligne "fullImg" gère l'image quand on clique
