@@ -20,6 +20,8 @@
             --gold: #f1c40f;
             --share: #3498db;
             --tactics: #9b59b6;
+            --terrain: #795548;
+            --gamemode: #b7950b;
             --free-green: #27ae60;
             --pill-bg: #eafaf1;
             
@@ -36,9 +38,7 @@
             --text-muted: #aaaaaa;
             --border: #333333;
             --hover-bg: #2a2a2a;
-            
-            --pill-bg: #1b3a29; /* Vert sombre pour le pillule */
-            
+            --pill-bg: #1b3a29;
             --shadow: 0 2px 5px rgba(0,0,0,0.5);
             --header-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
@@ -57,7 +57,7 @@
         .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: var(--pill-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
         .commander-status { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
         .status-ok { background: #dff9fb; color: #2ecc71; border: 1px solid #2ecc71; }
-        body.dark-mode .status-ok { background: #133629; } /* Ajustement dark mode */
+        body.dark-mode .status-ok { background: #133629; }
         
         .status-missing { background: #ff797933; color: #e74c3c; border: 1px solid #e74c3c; }
         .header-actions { display: flex; gap: 10px; }
@@ -65,6 +65,8 @@
         .btn-reset { background: #e74c3c; }
         .btn-share { background: var(--share); }
         .btn-tactics { background: var(--tactics); }
+        .btn-terrain { background: var(--terrain); }
+        .btn-gamemode { background: var(--gamemode); }
         .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center;}
 
         /* TABS */
@@ -73,8 +75,6 @@
         .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: var(--shadow); }
         .stark-btn.active { color: var(--stark); } 
         .bolton-btn.active { color: var(--bolton); }
-        
-        /* Ajustement couleurs tabs en dark mode pour visibilité */
         body.dark-mode .stark-btn.active { color: #5dade2; }
         body.dark-mode .bolton-btn.active { color: #e74c3c; }
 
@@ -89,34 +89,12 @@
         /* CARDS */
         .grid-store { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .card { border: 1px solid var(--border); border-radius: 6px; background: var(--component-bg); overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
-        
         .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
         
-        /* --- MODIFICATION POUR ZOOMER SUR LES CARTES GRISEES --- */
-        .card.disabled { 
-            opacity: 0.5; 
-            filter: grayscale(1); 
-            /* On enlève pointer-events: none ici pour permettre le clic sur l'image */
-        }
-        
-        /* On désactive l'effet de "levée" au survol pour les cartes désactivées */
-        .card.disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* On bloque uniquement la partie INFO (le bas de la carte qui ajoute l'unité) */
-        .card.disabled .card-info {
-            pointer-events: none;
-            cursor: not-allowed;
-        }
-
-        /* On s'assure que l'image reste cliquable avec le bon curseur */
-        .card.disabled .card-img-wrap {
-            pointer-events: auto;
-            cursor: zoom-in;
-        }
-        /* ------------------------------------------------------- */
+        .card.disabled { opacity: 0.5; filter: grayscale(1); }
+        .card.disabled:hover { transform: none; box-shadow: none; }
+        .card.disabled .card-info { pointer-events: none; cursor: not-allowed; }
+        .card.disabled .card-img-wrap { pointer-events: auto; cursor: zoom-in; }
 
         .card-img-wrap { width: 100%; height: 80px; overflow: hidden; cursor: zoom-in; }
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
@@ -135,7 +113,6 @@
         .att-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; background: var(--hover-bg); }
         .att-row.is-commander { background: #fffcf0; border-left: 3px solid var(--gold); }
         body.dark-mode .att-row.is-commander { background: #3b3618; border-left: 3px solid var(--gold); }
-        
         .att-name-link { cursor: zoom-in; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
         .att-name-link:hover { color: var(--share); text-decoration: underline; }
         .btn-add { width: 100%; border: 1px dashed var(--border); background: none; padding: 8px; cursor: pointer; color: var(--text-muted); }
@@ -149,13 +126,23 @@
         .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; color: var(--text-main); }
         @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-        /* TACTICS */
+        /* TACTICS & TERRAIN STYLES */
         .tactics-section { margin-bottom: 20px; }
         .tactics-title { font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; color: var(--tactics); }
+        
         .tactics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        
+        /* SPECIFIC: Force 4 colonnes pour le terrain */
+        #terrain-grid { grid-template-columns: repeat(4, 1fr); }
+
         .tactic-card { border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); cursor: zoom-in; transition: transform 0.2s; aspect-ratio: 2.5/3.5; background: #eee;}
         .tactic-card:hover { transform: translateY(-3px); }
         .tactic-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SPECIAL LAYOUT CARD (TAROT FORMAT) */
+        .special-card-container { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        /* Format Tarot = plus haut */
+        .special-card-container .tactic-card { width: 300px; aspect-ratio: 1.71/1.00; }
     </style>
 </head>
 <body>
@@ -174,8 +161,9 @@
             </div>
         </div>
         <div class="header-actions">
-            <!-- BOUTON THEME -->
             <button class="btn-action btn-theme" onclick="toggleTheme()" title="Changer le thème">🌗</button>
+            <button class="btn-action btn-terrain" onclick="openTerrainModal()">Terrain</button>
+            <button class="btn-action btn-gamemode" onclick="openGameModeModal()">Game Modes</button>
             <button class="btn-action btn-tactics" onclick="openTacticsModal()">Tactics Cards</button>
             <button class="btn-action btn-share" onclick="shareList()">Share List</button>
             <button class="btn-action btn-reset" onclick="resetAll()">Reset</button>
@@ -205,8 +193,8 @@
     <div id="attModal" class="modal-bg">
         <div class="modal-box" style="max-width: 500px;">
             <button class="close-btn" onclick="closeModal('attModal')">&times;</button>
-            <h3>Choose Attachment</h3>
-            <p id="commander-msg" style="font-size:0.8rem; color:#e67e22; display:none;">⚠ A Commander is already present.</p>
+            <h3>Choisir un Attachement</h3>
+            <p id="commander-msg" style="font-size:0.8rem; color:#e67e22; display:none;">⚠ Un Commander est déjà présent.</p>
             <div id="att-store-grid" class="grid-store"></div>
         </div>
     </div>
@@ -227,28 +215,32 @@
         </div>
     </div>
 
+    <div id="terrainModal" class="modal-bg">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('terrainModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Terrain & Layouts</h2>
+            <div class="special-card-container" id="terrain-special"></div>
+            <div class="tactics-grid" id="terrain-grid"></div>
+        </div>
+    </div>
+
+    <div id="gameModeModal" class="modal-bg">
+        <div class="modal-box" style="max-width: 500px;">
+            <button class="close-btn" onclick="closeModal('gameModeModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Game Modes</h2>
+            <div class="tactics-grid" id="gamemode-grid"></div>
+        </div>
+    </div>
+
     <script>
-        // --- THEME MANAGEMENT ---
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        }
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
+        (function() { if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode'); })();
 
-        // Init Theme
-        (function() {
-            const saved = localStorage.getItem('theme');
-            if(saved === 'dark') document.body.classList.add('dark-mode');
-        })();
-
-        // --- HELPERS ---
         const getImg = (name, color) => `https://via.placeholder.com/200x150/${color}/fff?text=${encodeURIComponent(name.replace(' (C)', ''))}`;
         const getCardImg = (name, color) => `https://via.placeholder.com/200x280/${color}/fff?text=${encodeURIComponent(name)}`;
         const getBaseName = (name) => name.replace(' (C)', '').trim();
 
-        // --- DATABASE ---
         const unitsDB = [
-            // HOUSE STARK
             { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ss.png" },
             { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ub.png" },
             { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ug.png" },
@@ -257,17 +249,12 @@
             { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ts.png" },
             { id: 7, name: "Stark Outriders", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/or.png" },
             { id: 8, name: "Stark Bowmen", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/bm.png" },
-            
-            // GREY WIND (Unique & Require Robb)
             { id: 9, name: "Grey Wind", faction: "House Stark", type: "COMBAT", cost: 3, unitType: "Monster", isUnique: true, req: "Robb Stark", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/gw.png" },
-
             { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/cs.png" },
             { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/ss.png" },
             { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/rc.png" },
             { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/hr.png" },
             { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/es.png" },
-
-            // HOUSE BOLTON
             { id: 50, name: "Dreadfort Cutthroats", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ct.png" },
             { id: 51, name: "Dreadfort Spearmen", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/sp.png" },
             { id: 52, name: "Dreadfort Bastard's Girls", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/bg.png" },
@@ -285,7 +272,6 @@
         ];
 
         const attachmentsDB = [
-            // STARK
             { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
             { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
             { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/bt.png" },
@@ -295,8 +281,6 @@
             { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/ss.png" },
             { id: 107, name: "Umber Champion", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/uc.png" },
             { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/wg.png" },
-
-            // BOLTON
             { id: 200, name: "Ramsay Snow (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
             { id: 201, name: "Ramsay Snow", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
             { id: 202, name: "Roose Bolton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
@@ -376,6 +360,63 @@
             ]
         };
 
+        const terrainCards = [
+            // Deux propriétés : img (miniature) et fullImg (zoom)
+            { 
+                name: "Battlefield Layouts", 
+                img: "https://i.imgur.com/fPjf9FT.jpeg", 
+                fullImg: "https://i.imgur.com/fPjf9FT.jpeg" 
+            },
+            
+            // Pour les autres, remplace les liens placeholder par tes deux images distinctes
+            { 
+                name: "Bog", 
+                img: "https://i.imgur.com/TYVyCPY.jpeg", 
+                fullImg: "https://i.imgur.com/9Hvk0PJ.jpeg" 
+            },
+            { 
+                name: "Forest", 
+                img: "https://i.imgur.com/OgTlr0R.jpeg", 
+                fullImg: "https://i.imgur.com/nWRhHn8.jpeg" 
+            },
+            { 
+                name: "Corpse pile", 
+                img: "https://i.imgur.com/Xkk9qIP.jpeg", 
+                fullImg: "https://i.imgur.com/VEglEAE.jpeg" 
+            },
+            { 
+                name: "Weirdwood", 
+                img: "https://i.imgur.com/3W3AkRw.jpeg", 
+                fullImg: "https://i.imgur.com/6bQSQHu.jpeg" 
+            },
+            { 
+                name: "Hedge", 
+                img: "https://i.imgur.com/vh9dDcM.jpeg", 
+                fullImg: "https://i.imgur.com/PpAchcl.jpeg" 
+            },
+            { 
+                name: "Stakes", 
+                img: "https://i.imgur.com/El5HQG5.jpeg", 
+                fullImg: "https://i.imgur.com/ofcepzW.jpeg" 
+            },
+            { 
+                name: "Low wall", 
+                img: "https://i.imgur.com/RwLNe8H.jpeg", 
+                fullImg: "https://i.imgur.com/Ml9ClD3.jpeg" 
+            },
+            { 
+                name: "Palisade", 
+                img: "https://i.imgur.com/W6QzwLT.jpeg", 
+                fullImg: "https://i.imgur.com/EyO9eHP.jpeg" 
+            }
+        ];
+
+        const gameModeCards = [
+            { name: "A Game Of Thrones", img: "https://i.imgur.com/P1YVd62.jpeg" },
+            { name: "A Clash Of Kings", img: "https://i.imgur.com/cM8C0oa.jpeg" },
+            { name: "A Dance With Dragons", img: "https://i.imgur.com/32ZtFT8.jpeg" }
+        ];
+
         // --- STATE & LOGIC ---
         const MAX_MAIN = 40; const MAX_FREE = 3;
         let activeFaction = "House Stark"; let roster = []; let currentUnitIndex = null; 
@@ -406,9 +447,7 @@
         function getCharacterNamesInRoster() {
             let names = new Set();
             roster.forEach(item => {
-                // Pour les attachements, on prend le nom de base
                 item.attachments.forEach(a => names.add(getBaseName(a.name)));
-                // Pour les unités (comme Grey Wind), on prend aussi leur nom si elles sont uniques
                 if (item.unit.isUnique) {
                     names.add(getBaseName(item.unit.name));
                 }
@@ -425,22 +464,14 @@
         }
 
         function checkUnitAvailability(unit) {
-            // 1. Cost check
             if (!checkAffordability(unit.cost, 'UNIT')) return false;
-
-            // 2. Uniqueness check
-            // Si l'unité est unique, on vérifie si elle est déjà dans le roster
             if (unit.isUnique) {
                 if (roster.some(item => item.unit.name === unit.name)) return false;
             }
-
-            // 3. Dependency check (ex: Grey Wind requires Robb Stark)
             if (unit.req) {
                 const presentChars = getCharacterNamesInRoster();
-                // On vérifie si le personnage requis est présent (soit en attachement, soit potentiellement en unité si applicable)
                 if (!presentChars.has(unit.req)) return false;
             }
-
             return true;
         }
 
@@ -461,7 +492,6 @@
             const ncuStore = document.getElementById('store-ncu');
             combatStore.innerHTML = ''; ncuStore.innerHTML = '';
             unitsDB.filter(u => u.faction === activeFaction).forEach(u => {
-                // Nouvelle fonction de vérification pour les unités
                 const canAfford = checkUnitAvailability(u);
                 const el = createCard(u, canAfford, () => addUnit(u));
                 if(u.type === 'COMBAT') combatStore.appendChild(el); else ncuStore.appendChild(el);
@@ -483,39 +513,27 @@
         function openAttModal(idx) {
             currentUnitIndex = idx;
             const modalGrid = document.getElementById('att-store-grid'); modalGrid.innerHTML = '';
-            
             const hasComm = isCommanderInRoster();
             const usedChars = getCharacterNamesInRoster();
-            
             const targetUnit = roster[idx].unit;
             const targetUnitType = targetUnit.unitType || 'Infantry';
             const unitAtts = roster[idx].attachments;
-
             const atts = attachmentsDB.filter(a => a.faction === targetUnit.faction);
-
-            // Sorting: Commanders first
             atts.sort((a, b) => (a.isCommander === b.isCommander) ? 0 : a.isCommander ? -1 : 1);
-
             document.getElementById('commander-msg').style.display = hasComm ? 'block' : 'none';
-
             atts.forEach(a => {
                 let canAfford = checkAffordability(a.cost, 'ATTACHMENT');
                 let baseName = getBaseName(a.name);
                 let attType = a.unitType || 'Infantry';
                 let slotType = a.attType || 1;
-
-                // 1. Rules
                 if(a.isCommander && hasComm) canAfford = false;
                 if(a.isUnique && usedChars.has(baseName)) canAfford = false;
                 if(attType !== targetUnitType) canAfford = false;
-
-                // 2. Slot Restrictions
                 if(slotType === 1 && unitAtts.some(x => x.attType === 1)) canAfford = false;
                 if(slotType === 3 && unitAtts.some(x => x.attType === 3)) canAfford = false;
                 if(slotType === 4 && a.req) {
                     if(!unitAtts.some(x => getBaseName(x.name) === a.req)) canAfford = false;
                 }
-
                 modalGrid.appendChild(createCard(a, canAfford, () => addAttachment(a)));
             });
             document.getElementById('attModal').style.display = 'flex';
@@ -530,12 +548,8 @@
             const cGrid = document.getElementById('commander-tactics-grid');
             const cTitle = document.getElementById('commander-tactics-title');
             const msg = document.getElementById('no-commander-msg');
-            const fTitle = document.getElementById('faction-tactics-title');
-            
             fGrid.innerHTML = '';
-            fTitle.innerText = `Faction Cards : ${activeFaction}`;
             (factionDecks[activeFaction]||[]).forEach(c => fGrid.appendChild(createTacticCard(c)));
-
             cGrid.innerHTML = '';
             const commName = getCommanderName();
             if(commName && commanderDecks[commName]) {
@@ -548,10 +562,67 @@
             }
             document.getElementById('tacticsModal').style.display = 'flex';
         }
+
+        function openTerrainModal() {
+            const grid = document.getElementById('terrain-grid');
+            const special = document.getElementById('terrain-special');
+            grid.innerHTML = '';
+            special.innerHTML = '';
+            
+            // On sépare Battlefield Layouts
+            const layoutCard = terrainCards.find(c => c.name === "Battlefield Layouts");
+            if(layoutCard) {
+                special.appendChild(createTacticCard(layoutCard));
+            }
+
+            // On met les autres
+            terrainCards.filter(c => c.name !== "Battlefield Layouts").forEach(c => {
+                grid.appendChild(createTacticCard(c));
+            });
+            
+            document.getElementById('terrainModal').style.display = 'flex';
+        }
+
+        function openGameModeModal() {
+    const grid = document.getElementById('gamemode-grid');
+    grid.innerHTML = '';
+    
+    // On change l'affichage de Grille (Grid) à Colonne (Flex) pour avoir une liste de boutons
+    grid.style.display = 'flex';
+    grid.style.flexDirection = 'column';
+    grid.style.gap = '15px';
+
+    gameModeCards.forEach(c => {
+        // Création du bouton
+        const btn = document.createElement('button');
+        
+        // On utilise les classes existantes pour garder le style visuel (couleur dorée)
+        btn.className = 'btn-action btn-gamemode'; 
+        
+        // Un peu de style spécifique pour ce menu
+        btn.style.width = '100%';
+        btn.style.padding = '15px';
+        btn.style.fontSize = '1.2rem';
+        btn.style.cursor = 'pointer';
+        
+        // Le texte du bouton
+        btn.innerText = c.name;
+        
+        // L'action : ouvrir l'image en grand (Lightbox) au clic
+        btn.onclick = () => openLightbox(c.img);
+        
+        grid.appendChild(btn);
+    });
+
+    document.getElementById('gameModeModal').style.display = 'flex';
+}
+
         function createTacticCard(card) {
-            const div = document.createElement('div'); div.className = 'tactic-card';
+            const div = document.createElement('div');
+            div.className = 'tactic-card';
+            // Use img for display, fullImg (or fallback to img) for zoom
             div.innerHTML = `<img src="${card.img}" alt="${card.name}">`;
-            div.onclick = () => openLightbox(card.img);
+            div.onclick = () => openLightbox(card.fullImg || card.img);
             return div;
         }
 
@@ -562,15 +633,12 @@
             document.getElementById('freePts').innerText = stats.freeUsed;
             document.getElementById('unitPts').innerText = stats.totalUnit;
             document.getElementById('attPts').innerText = stats.totalAtt;
-            
             const commInd = document.getElementById('commanderIndicator');
             commInd.innerText = hasComm ? "Commander OK" : "Commander Required";
             commInd.className = hasComm ? "commander-status status-ok" : "commander-status status-missing";
-
             renderStore();
             const lC = document.getElementById('roster-list-combat'); lC.innerHTML = '';
             const lN = document.getElementById('roster-list-ncu'); lN.innerHTML = '';
-
             roster.forEach((item, idx) => {
                 const el = document.createElement('div'); el.className = 'roster-unit';
                 let attHTML = '';
@@ -582,9 +650,7 @@
                     });
                     attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Add Attachment</button>`;
                 }
-                
                 el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div><b>${item.unit.name}</b></div><div style="color:var(--text-muted); font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; background:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-muted)'">&times;</button></div>${attHTML}`;
-                
                 if(item.unit.type === 'COMBAT') lC.appendChild(el); else lN.appendChild(el);
             });
         }
@@ -603,6 +669,8 @@
         window.onclick = (e) => {
             if(e.target == document.getElementById('attModal')) closeModal('attModal');
             if(e.target == document.getElementById('tacticsModal')) closeModal('tacticsModal');
+            if(e.target == document.getElementById('terrainModal')) closeModal('terrainModal');
+            if(e.target == document.getElementById('gameModeModal')) closeModal('gameModeModal');
         }
     </script>
 </body>
