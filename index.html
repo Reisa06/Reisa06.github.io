@@ -23,7 +23,7 @@
             --terrain: #795548;
             --gamemode: #b7950b;
             --free-green: #27ae60;
-            --feedback: #1b5e20; /* Vert sombre pour Feedback */
+            --feedback: #1b5e20;
             --pill-bg: #eafaf1;
             
             /* Ombres */
@@ -53,6 +53,7 @@
             z-index: 100; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
             transition: background 0.3s;
         }
+        .points-box { display: flex; flex-direction: column; }
         .total-row { display: flex; align-items: baseline; gap: 10px; }
         .total-points { font-size: 2rem; font-weight: 800; color: var(--text-main); }
         .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: var(--pill-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
@@ -61,7 +62,7 @@
         body.dark-mode .status-ok { background: #133629; }
         
         .status-missing { background: #ff797933; color: #e74c3c; border: 1px solid #e74c3c; }
-        .header-actions { display: flex; gap: 10px; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn-action { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s;}
         .btn-reset { background: #e74c3c; }
         .btn-share { background: var(--share); }
@@ -69,7 +70,7 @@
         .btn-terrain { background: var(--terrain); }
         .btn-gamemode { background: var(--gamemode); }
         .btn-feedback { background: var(--feedback); }
-        .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center;}
+        .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center; justify-content: center;}
 
         /* TABS */
         .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
@@ -82,7 +83,7 @@
 
         /* LAYOUT */
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
-        .column { background: var(--component-bg); padding: 20px; border-radius: 10px; box-shadow: var(--shadow); transition: background 0.3s; }
+        .column { background: var(--component-bg); padding: 20px; border-radius: 10px; box-shadow: var(--shadow); transition: background 0.3s; width: 100%; box-sizing: border-box; }
         .col-store { flex: 6; }
         .col-roster { flex: 4; position: sticky; top: 90px; max-height: 85vh; overflow-y: auto; }
         h3 { border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-top: 25px; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
@@ -145,6 +146,44 @@
         .special-card-container { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
         /* Format Tarot = plus haut */
         .special-card-container .tactic-card { width: 300px; aspect-ratio: 1.71/1.00; }
+
+        /* ================= MOBILE RESPONSIVE ================= */
+        @media screen and (max-width: 900px) {
+            body { padding: 10px; }
+            
+            /* Header Adaptation */
+            header { flex-direction: column; align-items: stretch; gap: 15px; padding: 15px; }
+            .points-box { align-items: center; text-align: center; }
+            .total-row { justify-content: center; flex-wrap: wrap; }
+            
+            /* Buttons grid on mobile */
+            .header-actions { justify-content: space-between; gap: 8px; }
+            .header-actions .btn-action { flex: 1 1 calc(33% - 10px); font-size: 0.85rem; padding: 12px 5px; display: flex; align-items: center; justify-content: center; }
+            
+            /* Tabs */
+            .faction-tabs { flex-wrap: wrap; }
+            .tab-btn { flex: 1 1 40%; font-size: 0.9rem; padding: 10px; text-align: center; }
+
+            /* Layout Stack */
+            .container { flex-direction: column; }
+            .col-store, .col-roster { flex: none; width: 100%; }
+            
+            /* Disable sticky roster on mobile to allow natural scrolling */
+            .col-roster { position: static; max-height: none; overflow: visible; }
+            
+            /* Grid Adjustment for small screens */
+            .grid-store { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            
+            /* Modal adjustments */
+            .modal-box { width: 95%; max-height: 90vh; padding: 15px; }
+            #terrain-grid { grid-template-columns: repeat(3, 1fr); }
+            .special-card-container .tactic-card { width: 100%; max-width: 300px; }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header-actions .btn-action { flex: 1 1 calc(50% - 10px); } /* 2 buttons per row on very small screens */
+            #terrain-grid { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -240,17 +279,17 @@
             <button class="close-btn" onclick="closeModal('feedbackModal')">&times;</button>
             <h2 style="margin-top:0; color:var(--text-main);">Pre-Season Feedback</h2>
             
-            <p style="margin-bottom: 20px;">Download this pdf, feel free to complete this and submit it to the shared email address:</p>
+            <p style="margin-bottom: 20px;">Download this pdf feel free to complete this and submit it to:</p>
             
             <!-- Section PDF -->
-            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                 <a href="https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf" target="_blank" style="color:var(--share); font-weight:bold; word-break: break-all; text-align:left; margin-right:10px;">Pre-Season-Feedback-2025.12.07.pdf</a>
                 <button class="btn-action btn-share" onclick="window.open('https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf', '_blank')" style="min-width: 80px;">Open</button>
             </div>
     
             <!-- Section Email -->
-            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between;">
-                <span id="cmonEmail" style="font-family: monospace; font-size: 1.1rem; font-weight: bold;">songtesting@cmon.com</span>
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <span id="cmonEmail" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; word-break: break-all;">songtesting@cmon.com</span>
                 <button class="btn-action btn-feedback" onclick="copyEmail()" style="min-width: 80px;">Copy</button>
             </div>
         </div>
