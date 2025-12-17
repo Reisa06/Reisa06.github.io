@@ -24,6 +24,7 @@
             --gamemode: #b7950b;
             --free-green: #27ae60;
             --feedback: #1b5e20;
+            --special: #8e44ad; /* Nouvelle couleur pour le bouton Special */
             --pill-bg: #eafaf1;
             
             /* Ombres */
@@ -102,12 +103,16 @@
         .card-img-wrap { width: 100%; height: 80px; overflow: hidden; cursor: zoom-in; }
         .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
         .card-img-wrap:hover img { transform: scale(1.1); }
-        .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: var(--component-bg); color: var(--text-main); }
+        .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: var(--component-bg); color: var(--text-main); display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
         .card-info:hover { background: var(--hover-bg); }
-        .card-name { font-weight: bold; font-size: 0.8rem; line-height: 1.2; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .card-name { font-weight: bold; font-size: 0.8rem; line-height: 1.2; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%; }
         .card-cost { display: inline-block; background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-top: 5px; }
         body.dark-mode .card-cost { background: #555; }
         .commander-badge { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; background: linear-gradient(90deg, #f1c40f, #f39c12); color: white; font-size: 0.7rem; font-weight: bold; text-align: center; padding: 2px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+
+        /* SPECIAL BUTTON */
+        .btn-special { margin-top: 5px; background-color: var(--special); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 20; }
+        .btn-special:hover { filter: brightness(1.1); }
 
         /* ROSTER */
         .roster-unit { border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; background: var(--component-bg); }
@@ -304,20 +309,24 @@
         const getBaseName = (name) => name.replace(' (C)', '').trim();
 
         const unitsDB = [
-            { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ss.png" },
+            { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://i.imgur.com/3ZUcmr7.jpeg" },
             { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ub.png" },
-            { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ug.png" },
-            { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ur.png" },
-            { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/tc.png" },
-            { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ts.png" },
+            { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://i.imgur.com/574KptS.jpeg" },
+            { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: "https://i.imgur.com/YsvZNEh.jpeg" },
+            { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://i.imgur.com/rZL1AQX.jpeg" },
+            { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://i.imgur.com/BanMKQl.jpeg" },
             { id: 7, name: "Stark Outriders", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/or.png" },
-            { id: 8, name: "Stark Bowmen", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/bm.png" },
+            { id: 8, name: "Stark Bowmen", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://i.imgur.com/dSXj67Z.jpeg" },
             { id: 9, name: "Grey Wind", faction: "House Stark", type: "COMBAT", cost: 3, unitType: "Monster", isUnique: true, req: "Robb Stark", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/gw.png" },
-            { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/cs.png" },
-            { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/ss.png" },
-            { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/rc.png" },
-            { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/hr.png" },
-            { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/ncu/es.png" },
+            { id: 10, name: "Crannogman Trackers", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://i.imgur.com/mHsEHdg.jpeg" },
+            { id: 11, name: "Crannogman Bog Devils", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://i.imgur.com/OeRN0tX.jpeg", special: { name: "Crannog Poison", img: "https://i.imgur.com/gzQ6a5B.jpeg" } },
+            
+            { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://i.imgur.com/EahyV1p.jpeg" },
+            { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, img: "https://i.imgur.com/HLyp9un.jpeg" },
+            { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, img: "https://i.imgur.com/qOdkZjL.jpeg" },
+            { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, img: "https://i.imgur.com/gD70KNY.jpeg" },
+            { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, img: "https://i.imgur.com/cQQoTJO.jpeg" },
+            
             { id: 50, name: "Dreadfort Cutthroats", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ct.png" },
             { id: 51, name: "Dreadfort Spearmen", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/sp.png" },
             { id: 52, name: "Dreadfort Bastard's Girls", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/bg.png" },
@@ -326,32 +335,38 @@
             { id: 55, name: "Dreadfort Blackguards", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/db.png" },
             { id: 56, name: "Bloody Mummer Skirmishers", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ms.png" },
             { id: 57, name: "Bloody Mummer Zorse Riders", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/mz.png" },
-            { id: 70, name: "Tybald", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/t.png" },
-            { id: 70, name: "Ramsay Bolton", faction: "House Bolton", type: "NCU", cost: 5, img: "https://i.imgur.com/X5v3u9a.jpeg" },
-            { id: 71, name: "Walder Frey", faction: "House Bolton", type: "NCU", cost: 5, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/wf.png" },
-            { id: 72, name: "Jeyne Pool", faction: "House Bolton", type: "NCU", cost: 6, img: "https://i.imgur.com/W0gK4JY.jpeg" },
-            { id: 73, name: "Walda Frey", faction: "House Bolton", type: "NCU", cost: 6, img: "https://i.imgur.com/QhEPrVu.jpeg" },
-            { id: 74, name: "Roose Bolton", faction: "House Bolton", type: "NCU", cost: 7, img: "https://i.imgur.com/Klnc11I.jpeg" }
+            
+            { id: 69, name: "Tybald", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/t.png" },
+            { id: 70, name: "Ramsay Bolton", faction: "House Bolton", type: "NCU", cost: 5, img: "https://i.imgur.com/lEZew7W.jpeg" },
+            { id: 71, name: "Walder Frey", faction: "House Bolton", type: "NCU", cost: 5, img: "https://i.imgur.com/OKuuTkx.jpeg" },
+            { id: 72, name: "Jeyne Poole", faction: "House Bolton", type: "NCU", cost: 6, img: "https://i.imgur.com/TplCpwi.jpeg" },
+            { id: 73, name: "Walda Frey", faction: "House Bolton", type: "NCU", cost: 6, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/fw.png" },
+            { id: 74, name: "Roose Bolton", faction: "House Bolton", type: "NCU", cost: 7, img: "https://i.imgur.com/qdXuqfH.jpeg" }
         ];
 
         const attachmentsDB = [
-            { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
-            { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/rs.png" },
-            { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/bt.png" },
-            { id: 103, name: "Brynden Tully", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/bt.png" },
-            { id: 104, name: "Greatjon Umber (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/gu.png" },
-            { id: 105, name: "Greatjon Umber", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/gu.png" },
-            { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/ss.png" },
+            { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/ibcNKqr.jpeg" },
+            { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/ibcNKqr.jpeg" },
+            { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/gRulOc1.jpeg" },
+            { id: 103, name: "Brynden Tully", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/gRulOc1.jpeg" },
+            { id: 104, name: "Greatjon Umber (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GRtfeOz.jpeg" },
+            { id: 105, name: "Greatjon Umber", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GRtfeOz.jpeg" },
+            { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/0SzFTA3.jpeg" },
             { id: 107, name: "Umber Champion", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/uc.png" },
-            { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/wg.png" },
+            { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Cavalry", img: "https://i.imgur.com/2fd0kj8.jpeg" },
+            // NEW ATTACHMENTS
+            { id: 109, name: "Howland Reed (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GDIp45R.jpeg" },
+            { id: 110, name: "Howland Reed", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GDIp45R.jpeg" },
+            { id: 111, name: "Crannogman Warden", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/cPqAMhg.jpeg" },
+            
             { id: 200, name: "Ramsay Snow (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
             { id: 201, name: "Ramsay Snow", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
             { id: 202, name: "Roose Bolton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
             { id: 203, name: "Roose Bolton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
             { id: 204, name: "Steelshanks Walton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
             { id: 205, name: "Steelshanks Walton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
-            { id: 206, name: "Vargo Hoat (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/vh.png" },
-            { id: 207, name: "Vargo Hoat", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/vh.png" },
+            { id: 206, name: "Vargo Hoat (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/Bkjg4Iq.jpeg" },
+            { id: 207, name: "Vargo Hoat", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/Bkjg4Iq.jpeg" },
             { id: 208, name: "Damon Dance-For-Me", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/dd.png" },
             { id: 209, name: "Ben Bones", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/bb.png" },
             { id: 210, name: "Skinner", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/s.png" },
@@ -366,11 +381,11 @@
 
         const factionDecks = {
             "House Stark": [
-                { name: "The Cold Wind Blows", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/cw.png" },
-                { name: "Northern Ferocity", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/nf.png" },
-                { name: "Devastating Impact", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/di.png" },
+                { name: "The Cold Wind Blows", img: "https://i.imgur.com/ZXL9atA.jpeg" },
+                { name: "Northern Ferocity", img: "https://i.imgur.com/i64YmuM.jpeg" },
+                { name: "Relentless Charge", img: "https://i.imgur.com/8ZhiPgw.jpeg" },
                 { name: "Winter Is Coming", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/wc.png" },
-                { name: "Swift Reposition", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/sr.png" },
+                { name: "Swift Reposition", img: "https://i.imgur.com/uvgM7Qy.jpeg" },
                 { name: "The Pack Survives", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ps.png" },
                 { name: "The North Endures", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ne.png" }
             ],
@@ -380,19 +395,19 @@
                 { name: "Fear Keeps A Man Alive", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fk.png" },
                 { name: "Sadistic Games", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sg.png" },
                 { name: "Flay Them All!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ft.png" },
-                { name: "Horrific Reputation", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/hr.png" },
+                { name: "Horrific Reputation", img: "https://i.imgur.com/7KfiPdn.jpeg" },
                 { name: "Cruelty And Cunning", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cc.png" }
             ]
         };
 
         const commanderDecks = {
             "Robb Stark (C)": [
-                { name: "Cunning Retreat", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/cr.png" },
-                { name: "Hit And Run", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/hr.png" },
-                { name: "Encircle The Prey", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ep.png" }
+                { name: "Waiting To Strike", img: "https://i.imgur.com/ihnC7JE.jpeg" },
+                { name: "Hit And Run", img: "https://i.imgur.com/as3VJl7.jpeg" },
+                { name: "Encircle The Prey", img: "https://i.imgur.com/y1TgaJ3.jpeg" }
             ],
             "Greatjon Umber (C)": [
-                { name: "Berserker Tactics", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/bt.png" },
+                { name: "Berserker Tactics", img: "https://i.imgur.com/GQPuSxK.jpeg" },
                 { name: "Death Before Chains!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/dc.png" },
                 { name: "Most Fearless In The North", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/mf.png" }
             ],
@@ -401,20 +416,25 @@
                 { name: "Family, Duty, Honor", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/fdh.png" },
                 { name: "Tully Resolve", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/tr.png" }
             ],
+            "Howland Reed (C)": [
+                { name: "Lay Of The Land", img: "https://i.imgur.com/yHRDLtW.jpeg" },
+                { name: "Crannog Ambush", img: "https://i.imgur.com/E7J5D2s.jpeg" },
+                { name: "Bog Devil Tactics", img: "https://i.imgur.com/B46bewu.jpeg" }
+            ],
             "Roose Bolton (C)": [
                 { name: "Whispered Threats", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/wt.png" },
                 { name: "Cold Regards", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cr.png" },
                 { name: "Dreadfort Secrets", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ds.png" }
             ],
             "Ramsay Snow (C)": [
-                { name: "Echoes Of Agony", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ea.png" },
-                { name: "Broken Playthings", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/bp.png" },
-                { name: "Spoil In Flesh", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sf.png" }
+                { name: "Echoes Of Agony", img: "https://i.imgur.com/qr9gfov.jpeg" },
+                { name: "Broken Playthings", img: "https://i.imgur.com/QpdHULv.jpeg" },
+                { name: "Spoil In Flesh", img: "https://i.imgur.com/FGEij2d.jpeg" }
             ],
             "Vargo Hoat (C)": [
-                { name: "The Crippler's Infamy", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ci.png" },
-                { name: "Butcher's Work", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/bw.png" },
-                { name: "Savored Suffering", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ss.png" }
+                { name: "The Crippler's Infamy", img: "https://i.imgur.com/SpVSuqV.jpeg" },
+                { name: "Butcher's Work", img: "https://i.imgur.com/hIA5V0i.jpeg" },
+                { name: "Savored Suffering", img: "https://i.imgur.com/xNhAhKJ.jpeg" }
             ],
             "Steelshanks Walton (C)": [
                 { name: "Steelshanks's Watch", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sw.png" },
@@ -435,42 +455,42 @@
             { 
                 name: "Bog", 
                 img: "https://i.imgur.com/TYVyCPY.jpeg", 
-                fullImg: "https://i.imgur.com/9Hvk0PJ.jpeg" 
+                fullImg: "https://i.imgur.com/9fKfeWF.jpeg" 
             },
             { 
                 name: "Forest", 
                 img: "https://i.imgur.com/OgTlr0R.jpeg", 
-                fullImg: "https://i.imgur.com/nWRhHn8.jpeg" 
+                fullImg: "https://i.imgur.com/wUPCX5J.jpeg" 
             },
             { 
                 name: "Corpse pile", 
                 img: "https://i.imgur.com/Xkk9qIP.jpeg", 
-                fullImg: "https://i.imgur.com/VEglEAE.jpeg" 
+                fullImg: "https://i.imgur.com/gb8FDGm.jpeg" 
             },
             { 
                 name: "Weirdwood", 
                 img: "https://i.imgur.com/3W3AkRw.jpeg", 
-                fullImg: "https://i.imgur.com/6bQSQHu.jpeg" 
+                fullImg: "https://i.imgur.com/moyTtQn.jpeg" 
             },
             { 
                 name: "Hedge", 
                 img: "https://i.imgur.com/vh9dDcM.jpeg", 
-                fullImg: "https://i.imgur.com/PpAchcl.jpeg" 
+                fullImg: "https://i.imgur.com/hUu9QEn.jpeg" 
             },
             { 
                 name: "Stakes", 
                 img: "https://i.imgur.com/El5HQG5.jpeg", 
-                fullImg: "https://i.imgur.com/ofcepzW.jpeg" 
+                fullImg: "https://i.imgur.com/MmB7QlF.jpeg" 
             },
             { 
                 name: "Low wall", 
                 img: "https://i.imgur.com/RwLNe8H.jpeg", 
-                fullImg: "https://i.imgur.com/Ml9ClD3.jpeg" 
+                fullImg: "https://i.imgur.com/L0mCM9d.jpeg" 
             },
             { 
                 name: "Palisade", 
                 img: "https://i.imgur.com/W6QzwLT.jpeg", 
-                fullImg: "https://i.imgur.com/EyO9eHP.jpeg" 
+                fullImg: "https://i.imgur.com/S6u14Zn.jpeg" 
             }
         ];
 
@@ -554,7 +574,11 @@
             const combatStore = document.getElementById('store-combat');
             const ncuStore = document.getElementById('store-ncu');
             combatStore.innerHTML = ''; ncuStore.innerHTML = '';
-            unitsDB.filter(u => u.faction === activeFaction).forEach(u => {
+            
+            // On filtre d'abord, PUIS on trie par coût croissant
+            unitsDB.filter(u => u.faction === activeFaction)
+                   .sort((a, b) => a.cost - b.cost)
+                   .forEach(u => {
                 const canAfford = checkUnitAvailability(u);
                 const el = createCard(u, canAfford, () => addUnit(u));
                 if(u.type === 'COMBAT') combatStore.appendChild(el); else ncuStore.appendChild(el);
@@ -565,7 +589,14 @@
             const div = document.createElement('div');
             div.className = `card ${!active ? 'disabled' : ''}`;
             let badge = data.isCommander ? `<div class="commander-badge">COMMANDER</div>` : '';
-            div.innerHTML = `${badge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div><div class="card-cost">${data.cost} pts</div></div>`;
+            
+            // Ajout du bouton Special si la propriété existe
+            let specialBtn = '';
+            if (data.special) {
+                specialBtn = `<button class="btn-special" onclick="event.stopPropagation(); openLightbox('${data.special.img}')">Special</button>`;
+            }
+
+            div.innerHTML = `${badge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div>${specialBtn}<div class="card-cost">${data.cost} pts</div></div>`;
             div.querySelector('.card-info').onclick = active ? onClick : null;
             return div;
         }
@@ -726,7 +757,14 @@
                     });
                     attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Add Attachment</button>`;
                 }
-                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div><b>${item.unit.name}</b></div><div style="color:var(--text-muted); font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; background:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-muted)'">&times;</button></div>${attHTML}`;
+                
+                // Bouton Special dans le roster
+                let rosterSpecialBtn = '';
+                if(item.unit.special) {
+                    rosterSpecialBtn = `<button class="btn-special" style="margin-right:10px;" onclick="openLightbox('${item.unit.special.img}')">Special</button>`;
+                }
+
+                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div style="display:flex; align-items:center; gap:5px;"><b>${item.unit.name}</b> ${rosterSpecialBtn}</div><div style="color:var(--text-muted); font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; background:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-muted)'">&times;</button></div>${attHTML}`;
                 if(item.unit.type === 'COMBAT') lC.appendChild(el); else lN.appendChild(el);
             });
         }
