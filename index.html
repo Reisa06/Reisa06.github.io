@@ -18,6 +18,7 @@
             --stark: #2c3e50;
             --bolton: #FEC3AC;
             --lannister: #b71c1c;
+            --baratheon: #f39c12; /* Jaune Baratheon */
             --gold: #f1c40f;
             --share: #3498db;
             --tactics: #9b59b6;
@@ -77,15 +78,17 @@
         .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center; justify-content: center;}
 
         /* TABS */
-        .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; }
+        .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
         .tab-btn { padding: 10px 25px; border: 2px solid transparent; background: var(--component-bg); cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s; text-transform: uppercase; color: var(--text-muted); }
         .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: var(--shadow); }
         .stark-btn.active { color: var(--stark); } 
         .bolton-btn.active { color: var(--bolton); }
         .lannister-btn.active { color: var(--lannister); }
+        .baratheon-btn.active { color: var(--baratheon); }
         body.dark-mode .stark-btn.active { color: #5dade2; }
         body.dark-mode .bolton-btn.active { color: #FEC3AC; }
         body.dark-mode .lannister-btn.active { color: #ff5252; }
+        body.dark-mode .baratheon-btn.active { color: #f1c40f; }
 
         /* LAYOUT */
         .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
@@ -114,6 +117,9 @@
         .card-cost { display: inline-block; background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-top: 5px; }
         body.dark-mode .card-cost { background: #555; }
         .commander-badge { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; background: linear-gradient(90deg, #f1c40f, #f39c12); color: white; font-size: 0.7rem; font-weight: bold; text-align: center; padding: 2px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .loyalty-badge { position: absolute; top: 20px; left: 0; width: 100%; pointer-events: none; color: white; font-size: 0.6rem; font-weight: bold; text-align: center; padding: 1px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; opacity: 0.9;}
+        .loyalty-stannis { background: #e67e22; }
+        .loyalty-renly { background: #27ae60; }
 
         /* SPECIAL BUTTON */
         .btn-special { margin-top: 5px; background-color: var(--special); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 20; }
@@ -171,7 +177,6 @@
             .header-actions .btn-action { flex: 1 1 calc(33% - 10px); font-size: 0.85rem; padding: 12px 5px; display: flex; align-items: center; justify-content: center; }
             
             /* Tabs */
-            .faction-tabs { flex-wrap: wrap; }
             .tab-btn { flex: 1 1 40%; font-size: 0.9rem; padding: 10px; text-align: center; }
 
             /* Layout Stack */
@@ -227,6 +232,7 @@
         <button class="tab-btn stark-btn active" onclick="setFaction('House Stark')">House Stark</button>
         <button class="tab-btn bolton-btn" onclick="setFaction('House Bolton')">House Bolton</button>
         <button class="tab-btn lannister-btn" onclick="setFaction('House Lannister')">House Lannister</button>
+        <button class="tab-btn baratheon-btn" onclick="setFaction('House Baratheon')">House Baratheon</button>
     </div>
 
     <div class="container">
@@ -259,6 +265,10 @@
             <h2 style="margin-top:0; color:var(--text-main);">Tactics Cards</h2>
             <div class="tactics-section">
                 <div class="tactics-title" id="faction-tactics-title">Faction Cards</div>
+                <div id="baratheon-choice" style="display:none; text-align:center; margin-bottom:15px;">
+                    <button class="btn-action" style="background:#e67e22;" onclick="renderDeck('House Baratheon (Stannis)')">Stannis Deck</button>
+                    <button class="btn-action" style="background:#27ae60;" onclick="renderDeck('House Baratheon (Renly)')">Renly Deck</button>
+                </div>
                 <div class="tactics-grid" id="faction-tactics-grid"></div>
             </div>
             <div class="tactics-section">
@@ -370,7 +380,25 @@
             { id: 91, name: "Pycelle", faction: "House Lannister", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/p.png?raw=true" },
             { id: 92, name: "Qyburn", faction: "House Lannister", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/q.png?raw=true" },
             { id: 93, name: "Cersei Lannister", faction: "House Lannister", type: "NCU", cost: 6, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/cl.png?raw=true" },
-            { id: 94, name: "Tyrion Lannister", faction: "House Lannister", type: "NCU", cost: 6, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/tl.png?raw=true" }
+            { id: 94, name: "Tyrion Lannister", faction: "House Lannister", type: "NCU", cost: 6, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/tl.png?raw=true" },
+
+            // BARATHEON
+            { id: 400, name: "Baratheon Wardens", faction: "House Baratheon", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bw.png?raw=true" },
+            { id: 401, name: "Baratheon Sentinels", faction: "House Baratheon", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bs.png?raw=true" },
+            { id: 402, name: "Baratheon Halberdiers", faction: "House Baratheon", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bh.png?raw=true" },
+            { id: 403, name: "Stag Knights", faction: "House Baratheon", type: "COMBAT", cost: 8, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/sk.png?raw=true" },
+            { id: 404, name: "Champions of the Stag", faction: "House Baratheon", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/cots.png?raw=true" },
+            { id: 405, name: "Queen's Men", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/qm.png?raw=true" },
+            { id: 406, name: "King's Men", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/km.png?raw=true" },
+            { id: 407, name: "Rose Knights", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/rk.png?raw=true" },
+            { id: 408, name: "Thorn Watch", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/tw.png?raw=true" },
+
+            { id: 450, name: "Margaery Tyrell", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/mt.png?raw=true" },
+            { id: 451, name: "Olenna Tyrell", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/ot.png?raw=true" },
+            { id: 452, name: "Davos Seaworth", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/ds.png?raw=true" },
+            { id: 453, name: "Melisandre", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/m.png?raw=true" },
+            { id: 454, name: "Alester Florent", faction: "House Baratheon", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/af.png?raw=true" },
+            { id: 455, name: "Shyra Errol", faction: "House Baratheon", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/who.png?raw=true" }
         ];
 
         const attachmentsDB = [
@@ -416,7 +444,13 @@
             { id: 304, name: "Gregor Clegane (C)", faction: "House Lannister", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc_b.png?raw=true" },
             { id: 305, name: "Gregor Clegane", faction: "House Lannister", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc_b.png?raw=true" },
             { id: 306, name: "Guard Captain", faction: "House Lannister", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc2.png?raw=true" },
-            { id: 307, name: "Assault Veteran", faction: "House Lannister", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/av.png?raw=true" }
+            { id: 307, name: "Assault Veteran", faction: "House Lannister", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/av.png?raw=true" },
+
+            // BARATHEON
+            { id: 500, name: "Stannis Baratheon (C) - The Rightful Heir", faction: "House Baratheon", cost: 0, isCommander: true, isUnique: true, loyalty: "Stannis", attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/sm.png?raw=true" },
+            { id: 501, name: "Renly Baratheon (C) - The Charismatic Heir", faction: "House Baratheon", cost: 0, isCommander: true, isUnique: true, loyalty: "Renly", attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/rb.png?raw=true" },
+            { id: 502, name: "Stag Knight Noble", faction: "House Baratheon", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/sk.png?raw=true" },
+            { id: 503, name: "Master Warden", faction: "House Baratheon", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/mw.png?raw=true" }
         ];
 
         const factionDecks = {
@@ -446,6 +480,24 @@
                 { name: "Subjugation of Power", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/sub.png?raw=true" },
                 { name: "A Lannister Pays His Debts", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/ld.png?raw=true" },
                 { name: "Bribery", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/b.png?raw=true" }
+            ],
+            "House Baratheon (Renly)": [
+                { name: "Ours Is the Fury!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_o.png?raw=true" },
+                { name: "Commanding Presence", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_cp.png?raw=true" },
+                { name: "Bannered Resolve", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_br.png?raw=true" },
+                { name: "Strength In Unity", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_su.png?raw=true" },
+                { name: "Rally The Banners", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_rb.png?raw=true" },
+                { name: "Pressured Onslaught", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_po.png?raw=true" },
+                { name: "The King's Favor", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_kf.png?raw=true" }
+            ],
+            "House Baratheon (Stannis)": [
+                { name: "Ours Is the Fury!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_o.png?raw=true" },
+                { name: "Measured Retribution", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_mr.png?raw=true" },
+                { name: "Unrelenting Determination", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_ud.png?raw=true" },
+                { name: "Judgement Returned", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_jr.png?raw=true" },
+                { name: "By Patience And Will", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_pw.png?raw=true" },
+                { name: "Steadfast Pursuit", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_sp.png?raw=true" },
+                { name: "The King's Justice", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_kj.png?raw=true" }
             ]
         };
 
@@ -504,58 +556,29 @@
                 { name: "Turn the Tables", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/tt.png?raw=true" },
                 { name: "False Agenda", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/fa.png?raw=true" },
                 { name: "Intercept Orders", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/io.png?raw=true" }
+            ],
+            "Stannis Baratheon (C) - The Rightful Heir": [
+                { name: "Oath of Duty", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_od.png?raw=true" },
+                { name: "Judgement Rendered", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_ju.png?raw=true" },
+                { name: "To The Bitter End", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_be.png?raw=true" }
+            ],
+            "Renly Baratheon (C) - The Charismatic Heir": [
+                { name: "Younger, Bolder...", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_yb.png?raw=true" },
+                { name: "Unified Advance", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_ua.png?raw=true" },
+                { name: "The Realm Stands With Me!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_rs.png?raw=true" }
             ]
         };
 
         const terrainCards = [
-            // Deux propriétés : img (miniature) et fullImg (zoom)
-            { 
-                name: "Battlefield Layouts", 
-                img: "https://i.imgur.com/fPjf9FT.jpeg", 
-                fullImg: "https://i.imgur.com/fPjf9FT.jpeg" 
-            },
-            
-            // Pour les autres, remplace les liens placeholder par tes deux images distinctes
-            { 
-                name: "Bog", 
-                img: "https://i.imgur.com/TYVyCPY.jpeg", 
-                fullImg: "https://i.imgur.com/cFazngM.jpeg" 
-            },
-            { 
-                name: "Forest", 
-                img: "https://i.imgur.com/OgTlr0R.jpeg", 
-                fullImg: "https://i.imgur.com/wUPCX5J.jpeg" 
-            },
-            { 
-                name: "Corpse pile", 
-                img: "https://i.imgur.com/Xkk9qIP.jpeg", 
-                fullImg: "https://i.imgur.com/VJo344l.jpeg" 
-            },
-            { 
-                name: "Weirdwood", 
-                img: "https://i.imgur.com/3W3AkRw.jpeg", 
-                fullImg: "https://i.imgur.com/moyTtQn.jpeg" 
-            },
-            { 
-                name: "Hedge", 
-                img: "https://i.imgur.com/vh9dDcM.jpeg", 
-                fullImg: "https://i.imgur.com/hUu9QEn.jpeg" 
-            },
-            { 
-                name: "Stakes", 
-                img: "https://i.imgur.com/El5HQG5.jpeg", 
-                fullImg: "https://i.imgur.com/MmB7QlF.jpeg" 
-            },
-            { 
-                name: "Low wall", 
-                img: "https://i.imgur.com/RwLNe8H.jpeg", 
-                fullImg: "https://i.imgur.com/L0mCM9d.jpeg" 
-            },
-            { 
-                name: "Palisade", 
-                img: "https://i.imgur.com/W6QzwLT.jpeg", 
-                fullImg: "https://i.imgur.com/S6u14Zn.jpeg" 
-            }
+            { name: "Battlefield Layouts", img: "https://i.imgur.com/fPjf9FT.jpeg", fullImg: "https://i.imgur.com/fPjf9FT.jpeg" },
+            { name: "Bog", img: "https://i.imgur.com/TYVyCPY.jpeg", fullImg: "https://i.imgur.com/cFazngM.jpeg" },
+            { name: "Forest", img: "https://i.imgur.com/OgTlr0R.jpeg", fullImg: "https://i.imgur.com/wUPCX5J.jpeg" },
+            { name: "Corpse pile", img: "https://i.imgur.com/Xkk9qIP.jpeg", fullImg: "https://i.imgur.com/VJo344l.jpeg" },
+            { name: "Weirdwood", img: "https://i.imgur.com/3W3AkRw.jpeg", fullImg: "https://i.imgur.com/moyTtQn.jpeg" },
+            { name: "Hedge", img: "https://i.imgur.com/vh9dDcM.jpeg", fullImg: "https://i.imgur.com/hUu9QEn.jpeg" },
+            { name: "Stakes", img: "https://i.imgur.com/El5HQG5.jpeg", fullImg: "https://i.imgur.com/MmB7QlF.jpeg" },
+            { name: "Low wall", img: "https://i.imgur.com/RwLNe8H.jpeg", fullImg: "https://i.imgur.com/L0mCM9d.jpeg" },
+            { name: "Palisade", img: "https://i.imgur.com/W6QzwLT.jpeg", fullImg: "https://i.imgur.com/S6u14Zn.jpeg" }
         ];
 
         const gameModeCards = [
@@ -567,7 +590,8 @@
         const factionZoneCards = [
             { name: "House Lannister Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-lannister.jpg?raw=true" },
             { name: "House Bolton Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-bolton.jpg?raw=true" },
-            { name: "House Stark Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-stark.jpg?raw=true" }
+            { name: "House Stark Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-stark.jpg?raw=true" },
+            { name: "House Baratheon Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-baratheon.jpg?raw=true" }
         ];
 
         // --- STATE & LOGIC ---
@@ -585,7 +609,8 @@
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             if(f === 'House Stark') document.querySelector('.stark-btn').classList.add('active');
             else if(f === 'House Bolton') document.querySelector('.bolton-btn').classList.add('active');
-            else document.querySelector('.lannister-btn').classList.add('active');
+            else if(f === 'House Lannister') document.querySelector('.lannister-btn').classList.add('active');
+            else document.querySelector('.baratheon-btn').classList.add('active');
             renderStore();
         }
 
@@ -609,6 +634,17 @@
             return names;
         }
 
+        function getFactionLoyalty() {
+            // Find any unit or attachment with a loyalty property
+            for (let item of roster) {
+                if (item.unit.loyalty) return item.unit.loyalty;
+                for (let att of item.attachments) {
+                    if (att.loyalty) return att.loyalty;
+                }
+            }
+            return null; // Neutral
+        }
+
         function calculateStats() {
             let uPts = 0; let aPts = 0;
             roster.forEach(item => { uPts += item.unit.cost; item.attachments.forEach(a => aPts += a.cost); });
@@ -623,13 +659,14 @@
                 const presentChars = getCharacterNamesInRoster();
                 if (!presentChars.has(unit.req)) return false;
             }
-            
-            // Check Unique Character Logic (Checks against ALL types: Unit, Attachment, NCU)
             if (unit.isUnique) {
                 const usedChars = getCharacterNamesInRoster();
                 const baseName = getBaseName(unit.name);
                 if (usedChars.has(baseName)) return false;
             }
+            // Check Loyalty
+            const currentLoyalty = getFactionLoyalty();
+            if (currentLoyalty && unit.loyalty && unit.loyalty !== currentLoyalty) return false;
 
             return true;
         }
@@ -651,7 +688,6 @@
             const ncuStore = document.getElementById('store-ncu');
             combatStore.innerHTML = ''; ncuStore.innerHTML = '';
             
-            // On filtre d'abord, PUIS on trie par coût croissant
             unitsDB.filter(u => u.faction === activeFaction)
                    .sort((a, b) => a.cost - b.cost)
                    .forEach(u => {
@@ -665,14 +701,16 @@
             const div = document.createElement('div');
             div.className = `card ${!active ? 'disabled' : ''}`;
             let badge = data.isCommander ? `<div class="commander-badge">COMMANDER</div>` : '';
+            let loyaltyBadge = '';
+            if (data.loyalty === 'Stannis') loyaltyBadge = `<div class="loyalty-badge loyalty-stannis">STANNIS LOYALTY</div>`;
+            if (data.loyalty === 'Renly') loyaltyBadge = `<div class="loyalty-badge loyalty-renly">RENLY LOYALTY</div>`;
             
-            // Ajout du bouton Special si la propriété existe
             let specialBtn = '';
             if (data.special) {
                 specialBtn = `<button class="btn-special" onclick="event.stopPropagation(); openLightbox('${data.special.img}')">Special</button>`;
             }
 
-            div.innerHTML = `${badge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div>${specialBtn}<div class="card-cost">${data.cost} pts</div></div>`;
+            div.innerHTML = `${badge}${loyaltyBadge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div>${specialBtn}<div class="card-cost">${data.cost} pts</div></div>`;
             div.querySelector('.card-info').onclick = active ? onClick : null;
             return div;
         }
@@ -688,6 +726,8 @@
             const targetUnit = roster[idx].unit;
             const targetUnitType = targetUnit.unitType || 'Infantry';
             const unitAtts = roster[idx].attachments;
+            const currentLoyalty = getFactionLoyalty(); // Get Loyalty
+
             const atts = attachmentsDB.filter(a => a.faction === targetUnit.faction);
             atts.sort((a, b) => (a.isCommander === b.isCommander) ? 0 : a.isCommander ? -1 : 1);
             document.getElementById('commander-msg').style.display = hasComm ? 'block' : 'none';
@@ -704,6 +744,9 @@
                 if(slotType === 4 && a.req) {
                     if(!unitAtts.some(x => getBaseName(x.name) === a.req)) canAfford = false;
                 }
+                // Check Loyalty for Attachments
+                if (currentLoyalty && a.loyalty && a.loyalty !== currentLoyalty) canAfford = false;
+
                 modalGrid.appendChild(createCard(a, canAfford, () => addAttachment(a)));
             });
             document.getElementById('attModal').style.display = 'flex';
@@ -713,13 +756,41 @@
         function removeAttachment(uIdx, aIdx) { roster[uIdx].attachments.splice(aIdx, 1); updateUI(); }
         function resetAll() { if(confirm('Are you sure you want to reset the list?')) { roster = []; updateUI(); } }
 
+        function renderDeck(deckName) {
+            const fGrid = document.getElementById('faction-tactics-grid');
+            fGrid.innerHTML = '';
+            const deck = factionDecks[deckName];
+            if(deck) {
+               deck.forEach(c => fGrid.appendChild(createTacticCard(c)));
+            }
+        }
+
         function openTacticsModal() {
             const fGrid = document.getElementById('faction-tactics-grid');
             const cGrid = document.getElementById('commander-tactics-grid');
             const cTitle = document.getElementById('commander-tactics-title');
             const msg = document.getElementById('no-commander-msg');
+            const baraChoice = document.getElementById('baratheon-choice');
+            
             fGrid.innerHTML = '';
-            (factionDecks[activeFaction]||[]).forEach(c => fGrid.appendChild(createTacticCard(c)));
+            baraChoice.style.display = 'none';
+
+            // Special logic for Baratheon
+            if (activeFaction === 'House Baratheon') {
+                const loyalty = getFactionLoyalty();
+                if (loyalty === 'Stannis') {
+                    renderDeck('House Baratheon (Stannis)');
+                } else if (loyalty === 'Renly') {
+                    renderDeck('House Baratheon (Renly)');
+                } else {
+                    // Neutral: Show choice buttons
+                    baraChoice.style.display = 'block';
+                }
+            } else {
+                // Standard Logic
+                (factionDecks[activeFaction]||[]).forEach(c => fGrid.appendChild(createTacticCard(c)));
+            }
+
             cGrid.innerHTML = '';
             const commName = getCommanderName();
             if(commName && commanderDecks[commName]) {
@@ -748,13 +819,11 @@
             grid.innerHTML = '';
             special.innerHTML = '';
             
-            // On sépare Battlefield Layouts
             const layoutCard = terrainCards.find(c => c.name === "Battlefield Layouts");
             if(layoutCard) {
                 special.appendChild(createTacticCard(layoutCard));
             }
 
-            // On met les autres
             terrainCards.filter(c => c.name !== "Battlefield Layouts").forEach(c => {
                 grid.appendChild(createTacticCard(c));
             });
@@ -766,13 +835,11 @@
             const grid = document.getElementById('gamemode-grid');
             grid.innerHTML = '';
             
-            // On change l'affichage de Grille (Grid) à Colonne (Flex) pour avoir une liste de boutons
             grid.style.display = 'flex';
             grid.style.flexDirection = 'column';
             grid.style.gap = '15px';
 
             gameModeCards.forEach(c => {
-                // Création du bouton
                 const btn = document.createElement('button');
                 btn.className = 'btn-action btn-gamemode'; 
                 btn.style.width = '100%';
@@ -857,9 +924,13 @@
         async function shareList() {
             const stats = calculateStats();
             const commander = getCommanderName() || "None";
+            const loyalty = getFactionLoyalty() || "Neutral";
             const cU = roster.filter(i => i.unit.type === 'COMBAT');
             const nU = roster.filter(i => i.unit.type === 'NCU');
-            let t = `Faction: ${activeFaction}\nCommander: ${commander}\nPoints: ${stats.mainUsed}/40 (Free Att: ${stats.freeUsed}/3)\n\n`;
+            let t = `Faction: ${activeFaction}`;
+            if(activeFaction === 'House Baratheon') t += ` (${loyalty})`;
+            t += `\nCommander: ${commander}\nPoints: ${stats.mainUsed}/40 (Free Att: ${stats.freeUsed}/3)\n\n`;
+            
             if(cU.length) { t += `Battlefield Units\n`; cU.forEach(i => { t += ` • ${i.unit.name} (${i.unit.cost})\n`; i.attachments.forEach(a => t += `     ${a.name} (${a.cost})\n`); }); t += `\n`; }
             if(nU.length) { t += `Council Units\n`; nU.forEach(i => t += ` • ${i.unit.name} (${i.unit.cost})\n`); }
             try { await navigator.clipboard.writeText(t); const b = document.querySelector('.btn-share'); const p = b.innerText; b.innerText = "Copied!"; setTimeout(() => b.innerText = p, 2000); } catch (e) { alert("Error copying list"); }
