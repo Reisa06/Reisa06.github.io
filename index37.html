@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reisa ASOIAF Builder</title>
+    <style>
+        :root {
+            /* Couleurs de base (Mode Clair) */
+            --bg: #f0f2f5;
+            --component-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border: #dddddd;
+            --hover-bg: #f9f9f9;
+            
+            /* Couleurs Factions & UI */
+            --stark: #2c3e50;
+            --bolton: #FEC3AC;
+            --lannister: #b71c1c;
+            --baratheon: #f39c12;
+            --gold: #f1c40f;
+            --share: #3498db;
+            --tactics: #9b59b6;
+            --zone: #607d8b;
+            --terrain: #795548;
+            --gamemode: #b7950b;
+            --free-green: #27ae60;
+            --feedback: #1b5e20;
+            --special: #8e44ad;
+            --pill-bg: #eafaf1;
+            
+            /* Ombres */
+            --shadow: 0 2px 5px rgba(0,0,0,0.05);
+            --header-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* MODE SOMBRE */
+        body.dark-mode {
+            --bg: #121212;
+            --component-bg: #1e1e1e;
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border: #333333;
+            --hover-bg: #2a2a2a;
+            --pill-bg: #1b3a29;
+            --shadow: 0 2px 5px rgba(0,0,0,0.5);
+            --header-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); margin: 0; padding: 20px; color: var(--text-main); transition: background-color 0.3s, color 0.3s; }
+
+        /* HEADER */
+        header {
+            position: sticky; top: 0; background: var(--component-bg); padding: 10px 20px;
+            border-radius: 8px; box-shadow: var(--header-shadow);
+            z-index: 100; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.3s;
+        }
+        .points-box { display: flex; flex-direction: column; }
+        .total-row { display: flex; align-items: baseline; gap: 10px; }
+        .total-points { font-size: 2rem; font-weight: 800; color: var(--text-main); }
+        .free-points { font-size: 0.9rem; color: var(--free-green); font-weight: bold; background: var(--pill-bg); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--free-green); }
+        .commander-status { font-size: 0.8rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; margin-left: 5px; vertical-align: middle;}
+        .status-ok { background: #dff9fb; color: #2ecc71; border: 1px solid #2ecc71; }
+        body.dark-mode .status-ok { background: #133629; }
+        
+        .status-missing { background: #ff797933; color: #e74c3c; border: 1px solid #e74c3c; }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-action { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; transition: 0.2s;}
+        .btn-reset { background: #e74c3c; }
+        .btn-share { background: var(--share); }
+        .btn-tactics { background: var(--tactics); }
+        .btn-zone { background: var(--zone); }
+        .btn-terrain { background: var(--terrain); }
+        .btn-gamemode { background: var(--gamemode); }
+        .btn-feedback { background: var(--feedback); }
+        .btn-theme { background: var(--text-main); color: var(--bg); font-size: 1.2rem; padding: 5px 15px; display:flex; align-items:center; justify-content: center;}
+
+        /* TABS */
+        .faction-tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 25px; border: 2px solid transparent; background: var(--component-bg); cursor: pointer; font-weight: bold; border-radius: 20px; opacity: 0.7; transition: 0.3s; text-transform: uppercase; color: var(--text-muted); }
+        .tab-btn.active { opacity: 1; border-color: currentColor; box-shadow: var(--shadow); }
+        .stark-btn.active { color: var(--stark); } 
+        .bolton-btn.active { color: var(--bolton); }
+        .lannister-btn.active { color: var(--lannister); }
+        .baratheon-btn.active { color: var(--baratheon); }
+        body.dark-mode .stark-btn.active { color: #5dade2; }
+        body.dark-mode .bolton-btn.active { color: #FEC3AC; }
+        body.dark-mode .lannister-btn.active { color: #ff5252; }
+        body.dark-mode .baratheon-btn.active { color: #f1c40f; }
+
+        /* LAYOUT */
+        .container { display: flex; gap: 20px; max-width: 1400px; margin: 0 auto; align-items: flex-start; }
+        .column { background: var(--component-bg); padding: 20px; border-radius: 10px; box-shadow: var(--shadow); transition: background 0.3s; width: 100%; box-sizing: border-box; }
+        .col-store { flex: 6; }
+        .col-roster { flex: 4; position: sticky; top: 90px; max-height: 85vh; overflow-y: auto; }
+        h3 { border-bottom: 2px solid var(--border); padding-bottom: 8px; margin-top: 25px; color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; }
+        .roster-header { background: var(--hover-bg); padding: 8px; font-weight: bold; text-align: center; margin-bottom: 10px; border-radius: 4px; color: var(--text-muted); font-size: 0.85rem; letter-spacing: 1px; }
+
+        /* CARDS */
+        .grid-store { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+        .card { border: 1px solid var(--border); border-radius: 6px; background: var(--component-bg); overflow: hidden; position: relative; transition: transform 0.2s; display: flex; flex-direction: column; }
+        .card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+        
+        .card.disabled { opacity: 0.5; filter: grayscale(1); }
+        .card.disabled:hover { transform: none; box-shadow: none; }
+        .card.disabled .card-info { pointer-events: none; cursor: not-allowed; }
+        .card.disabled .card-img-wrap { pointer-events: auto; cursor: zoom-in; }
+
+        .card-img-wrap { width: 100%; height: 80px; overflow: hidden; cursor: zoom-in; }
+        .card img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.3s; }
+        .card-img-wrap:hover img { transform: scale(1.1); }
+        .card-info { padding: 8px; text-align: center; cursor: pointer; flex-grow: 1; background: var(--component-bg); color: var(--text-main); display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .card-info:hover { background: var(--hover-bg); }
+        .card-name { font-weight: bold; font-size: 0.8rem; line-height: 1.2; height: 35px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%; }
+        .card-cost { display: inline-block; background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; margin-top: 5px; }
+        body.dark-mode .card-cost { background: #555; }
+        .commander-badge { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; background: linear-gradient(90deg, #f1c40f, #f39c12); color: white; font-size: 0.7rem; font-weight: bold; text-align: center; padding: 2px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; }
+        .loyalty-badge { position: absolute; top: 20px; left: 0; width: 100%; pointer-events: none; color: white; font-size: 0.6rem; font-weight: bold; text-align: center; padding: 1px 0; letter-spacing: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 10; opacity: 0.9;}
+        .loyalty-stannis { background: #e67e22; }
+        .loyalty-renly { background: #27ae60; }
+
+        /* SPECIAL BUTTON */
+        .btn-special { margin-top: 5px; background-color: var(--special); color: white; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; font-weight: bold; cursor: pointer; z-index: 20; }
+        .btn-special:hover { filter: brightness(1.1); }
+
+        /* ROSTER */
+        .roster-unit { border: 1px solid var(--border); border-radius: 6px; margin-bottom: 15px; background: var(--component-bg); }
+        .unit-header { padding: 10px; display: flex; justify-content: space-between; align-items: center; background: var(--component-bg); border-bottom: 1px solid var(--border); }
+        .unit-thumb { width: 45px; height: 45px; border-radius: 4px; object-fit: cover; object-position: top; cursor: zoom-in; border: 1px solid var(--border);}
+        .att-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border); font-size: 0.85rem; background: var(--hover-bg); }
+        .att-row.is-commander { background: #fffcf0; border-left: 3px solid var(--gold); }
+        body.dark-mode .att-row.is-commander { background: #3b3618; border-left: 3px solid var(--gold); }
+        .att-name-link { cursor: zoom-in; font-weight: bold; color: var(--text-main); transition: color 0.2s; }
+        .att-name-link:hover { color: var(--share); text-decoration: underline; }
+        .btn-add { width: 100%; border: 1px dashed var(--border); background: none; padding: 8px; cursor: pointer; color: var(--text-muted); }
+        .btn-add:hover { background: var(--hover-bg); color: var(--text-main); }
+
+        /* MODALS & LIGHTBOX */
+        .lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; display: none; align-items: center; justify-content: center; cursor: zoom-out; }
+        /* Lightbox Container inside overlay */
+        .lightbox-content { 
+            position: relative; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            max-width: 90%; 
+            max-height: 90vh; 
+        }
+        .lightbox img { 
+            max-width: 100%; 
+            max-height: 90vh; 
+            border-radius: 8px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+            animation: zoomIn 0.2s; 
+        }
+        
+        /* Lightbox Navigation */
+        .lightbox-nav { 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            font-size: 3rem; 
+            color: white; 
+            cursor: pointer; 
+            user-select: none; 
+            padding: 20px; 
+            background: rgba(0,0,0,0.3); 
+            border-radius: 50%; 
+            transition: 0.3s; 
+            z-index: 1001; 
+        }
+        .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+        
+        /* Closer to image on Desktop */
+        .nav-left { left: -80px; } 
+        .nav-right { right: -80px; }
+
+        .modal-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
+        .modal-box { background: var(--component-bg); padding: 20px; border-radius: 8px; width: 90%; max-width: 600px; max-height: 85vh; overflow-y: auto; color: var(--text-main); }
+        .close-btn { float: right; cursor: pointer; font-size: 1.5rem; border: none; background: none; color: var(--text-main); }
+        @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* TACTICS & TERRAIN STYLES */
+        .tactics-section { margin-bottom: 20px; }
+        .tactics-title { font-weight: bold; font-size: 1.1rem; border-bottom: 2px solid var(--border); padding-bottom: 5px; margin-bottom: 10px; color: var(--tactics); }
+        
+        .tactics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+        
+        /* SPECIFIC: Force 4 colonnes pour le terrain */
+        #terrain-grid { grid-template-columns: repeat(4, 1fr); }
+
+        .tactic-card { border-radius: 6px; overflow: hidden; box-shadow: var(--shadow); cursor: zoom-in; transition: transform 0.2s; aspect-ratio: 2.5/3.5; background: #eee;}
+        .tactic-card:hover { transform: translateY(-3px); }
+        .tactic-card img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* SPECIAL LAYOUT CARD (TAROT FORMAT) */
+        .special-card-container { display: flex; justify-content: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        /* Format Tarot = plus haut */
+        .special-card-container .tactic-card { width: 300px; aspect-ratio: 1.71/1.00; }
+
+        /* ================= MOBILE RESPONSIVE ================= */
+        @media screen and (max-width: 900px) {
+            body { padding: 10px; }
+            
+            /* Header Adaptation */
+            header { flex-direction: column; align-items: stretch; gap: 15px; padding: 15px; }
+            .points-box { align-items: center; text-align: center; }
+            .total-row { justify-content: center; flex-wrap: wrap; }
+            
+            /* Buttons grid on mobile */
+            .header-actions { justify-content: space-between; gap: 8px; }
+            .header-actions .btn-action { flex: 1 1 calc(33% - 10px); font-size: 0.85rem; padding: 12px 5px; display: flex; align-items: center; justify-content: center; }
+            
+            /* Tabs */
+            .tab-btn { flex: 1 1 40%; font-size: 0.9rem; padding: 10px; text-align: center; }
+
+            /* Layout Stack */
+            .container { flex-direction: column; }
+            .col-store, .col-roster { flex: none; width: 100%; }
+            
+            /* Disable sticky roster on mobile to allow natural scrolling */
+            .col-roster { position: static; max-height: none; overflow: visible; }
+            
+            /* Grid Adjustment for small screens */
+            .grid-store { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+            
+            /* Modal adjustments */
+            .modal-box { width: 95%; max-height: 90vh; padding: 15px; }
+            #terrain-grid { grid-template-columns: repeat(3, 1fr); }
+            .special-card-container .tactic-card { width: 100%; max-width: 300px; }
+            
+            /* Lightbox Mobile Adjustments */
+            .lightbox-content { max-width: 100%; }
+            /* On mobile, bring arrows to screen edge to avoid being off-screen */
+            .nav-left { left: 10px; }
+            .nav-right { right: 10px; }
+            .lightbox-nav { font-size: 2rem; padding: 10px; }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header-actions .btn-action { flex: 1 1 calc(50% - 10px); } /* 2 buttons per row on very small screens */
+            #terrain-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <div class="lightbox-content">
+            <span id="lb-prev" class="lightbox-nav nav-left" onclick="changeLightboxImage(-1)">&#10094;</span>
+            <img id="lightbox-img" src="" alt="Zoom">
+            <span id="lb-next" class="lightbox-nav nav-right" onclick="changeLightboxImage(1)">&#10095;</span>
+        </div>
+    </div>
+
+    <header>
+        <div class="points-box">
+            <div class="total-row">
+                <div class="total-points"><span id="mainPts">0</span> / 40</div>
+                <div class="free-points">+ <span id="freePts">0</span>/3 Attachment Points</div>
+                <span id="commanderIndicator" class="commander-status status-missing">Commander Required</span>
+            </div>
+            <div class="details-points" style="font-size:0.85rem; color:var(--text-muted); margin-top:5px;">
+                Cost Units: <span id="unitPts">0</span> | Cost Attachments: <span id="attPts">0</span>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-action btn-theme" onclick="toggleTheme()" title="Changer le thème">🌗</button>
+            <button class="btn-action btn-feedback" onclick="openFeedbackModal()">Feedback</button>
+            <button class="btn-action btn-terrain" onclick="openTerrainModal()">Terrain</button>
+            <button class="btn-action btn-gamemode" onclick="openGameModeModal()">Game Modes</button>
+            <button class="btn-action btn-zone" onclick="openFactionZoneModal()">Faction Zone</button>
+            <button class="btn-action btn-tactics" onclick="openTacticsModal()">Tactics Cards</button>
+            <button class="btn-action btn-share" onclick="shareList()">Share List</button>
+            <button class="btn-action btn-reset" onclick="resetAll()">Reset</button>
+        </div>
+    </header>
+
+    <div class="faction-tabs">
+        <button class="tab-btn stark-btn active" onclick="setFaction('House Stark')">House Stark</button>
+        <button class="tab-btn bolton-btn" onclick="setFaction('House Bolton')">House Bolton</button>
+        <button class="tab-btn lannister-btn" onclick="setFaction('House Lannister')">House Lannister</button>
+        <button class="tab-btn baratheon-btn" onclick="setFaction('House Baratheon')">House Baratheon</button>
+    </div>
+
+    <div class="container">
+        <div class="column col-store">
+            <h3>Battlefield Units</h3>
+            <div id="store-combat" class="grid-store"></div>
+            <h3>Council Units</h3>
+            <div id="store-ncu" class="grid-store"></div>
+        </div>
+        <div class="column col-roster">
+            <div class="roster-header">BATTLEFIELD UNITS</div>
+            <div id="roster-list-combat"></div>
+            <div class="roster-header" style="margin-top: 20px;">COUNCIL UNITS</div>
+            <div id="roster-list-ncu"></div>
+        </div>
+    </div>
+
+    <div id="attModal" class="modal-bg">
+        <div class="modal-box" style="max-width: 500px;">
+            <button class="close-btn" onclick="closeModal('attModal')">&times;</button>
+            <h3>Choisir un Attachement</h3>
+            <p id="commander-msg" style="font-size:0.8rem; color:#e67e22; display:none;">⚠ Un Commander est déjà présent.</p>
+            <div id="att-store-grid" class="grid-store"></div>
+        </div>
+    </div>
+
+    <div id="tacticsModal" class="modal-bg">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('tacticsModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Tactics Cards</h2>
+            <div class="tactics-section">
+                <div class="tactics-title" id="faction-tactics-title">Faction Cards</div>
+                <div id="baratheon-choice" style="display:none; text-align:center; margin-bottom:15px;">
+                    <button class="btn-action" style="background:#e67e22;" onclick="renderDeck('House Baratheon (Stannis)')">Stannis Deck</button>
+                    <button class="btn-action" style="background:#27ae60;" onclick="renderDeck('House Baratheon (Renly)')">Renly Deck</button>
+                </div>
+                <div class="tactics-grid" id="faction-tactics-grid"></div>
+            </div>
+            <div class="tactics-section">
+                <div class="tactics-title" id="commander-tactics-title">Commander Cards</div>
+                <div class="tactics-grid" id="commander-tactics-grid"></div>
+                <p id="no-commander-msg" style="color:var(--text-muted); font-style:italic; text-align:center;">No Commander selected.</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="factionZoneModal" class="modal-bg">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('factionZoneModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Faction Zone Cards</h2>
+            <div class="tactics-grid" id="faction-zone-grid"></div>
+        </div>
+    </div>
+
+    <div id="terrainModal" class="modal-bg">
+        <div class="modal-box">
+            <button class="close-btn" onclick="closeModal('terrainModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Terrain & Layouts</h2>
+            <div class="special-card-container" id="terrain-special"></div>
+            <div class="tactics-grid" id="terrain-grid"></div>
+        </div>
+    </div>
+
+    <div id="gameModeModal" class="modal-bg">
+        <div class="modal-box" style="max-width: 500px;">
+            <button class="close-btn" onclick="closeModal('gameModeModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Game Modes</h2>
+            <div class="tactics-grid" id="gamemode-grid"></div>
+        </div>
+    </div>
+
+    <div id="feedbackModal" class="modal-bg">
+        <div class="modal-box" style="max-width: 550px; text-align: center;">
+            <button class="close-btn" onclick="closeModal('feedbackModal')">&times;</button>
+            <h2 style="margin-top:0; color:var(--text-main);">Pre-Season Feedback</h2>
+            
+            <p style="margin-bottom: 20px;">Download this pdf feel free to complete this and submit it to:</p>
+            
+            <!-- Section PDF -->
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <a href="https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf" target="_blank" style="color:var(--share); font-weight:bold; word-break: break-all; text-align:left; margin-right:10px;">Pre-Season-Feedback-2025.12.07.pdf</a>
+                <button class="btn-action btn-share" onclick="window.open('https://asoiaf.cmon.com/wp-content/uploads/2025/12/Pre-Season-Feedback-2025.12.07.pdf', '_blank')" style="min-width: 80px;">Open</button>
+            </div>
+    
+            <!-- Section Email -->
+            <div style="background: var(--hover-bg); padding: 15px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                <span id="cmonEmail" style="font-family: monospace; font-size: 1.1rem; font-weight: bold; word-break: break-all;">songtesting@cmon.com</span>
+                <button class="btn-action btn-feedback" onclick="copyEmail()" style="min-width: 80px;">Copy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light'); }
+        (function() { if(localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode'); })();
+
+        const getImg = (name, color) => `https://via.placeholder.com/200x150/${color}/fff?text=${encodeURIComponent(name.replace(' (C)', ''))}`;
+        const getCardImg = (name, color) => `https://via.placeholder.com/200x280/${color}/fff?text=${encodeURIComponent(name)}`;
+        const getBaseName = (name) => name.replace(' (C)', '').trim();
+
+        const unitsDB = [
+            { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://i.imgur.com/3ZUcmr7.jpeg" },
+            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/ub.png" },
+            { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://i.imgur.com/574KptS.jpeg" },
+            { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: "https://i.imgur.com/YsvZNEh.jpeg" },
+            { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://i.imgur.com/rZL1AQX.jpeg" },
+            { id: 6, name: "House Tully Sworn Shields", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://i.imgur.com/BanMKQl.jpeg" },
+            { id: 7, name: "Stark Outriders", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/or.png" },
+            { id: 8, name: "Stark Bowmen", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://i.imgur.com/dSXj67Z.jpeg" },
+            { id: 9, name: "Grey Wind", faction: "House Stark", type: "COMBAT", cost: 3, unitType: "Monster", isUnique: true, req: "Robb Stark", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/units/gw.png" },
+            { id: 10, name: "Crannogman Trackers", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://i.imgur.com/mHsEHdg.jpeg" },
+            { id: 11, name: "Crannogman Bog Devils", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://i.imgur.com/OeRN0tX.jpeg", special: { name: "Crannog Poison", img: "https://i.imgur.com/gzQ6a5B.jpeg" } },
+            
+            { id: 20, name: "Catelyn Stark", faction: "House Stark", type: "NCU", cost: 5, isUnique: true, img: "https://i.imgur.com/EahyV1p.jpeg" },
+            { id: 21, name: "Sansa Stark", faction: "House Stark", type: "NCU", cost: 5, isUnique: true, img: "https://i.imgur.com/HLyp9un.jpeg" },
+            { id: 22, name: "Rodrick Cassel", faction: "House Stark", type: "NCU", cost: 6, isUnique: true, img: "https://i.imgur.com/qOdkZjL.jpeg" },
+            { id: 23, name: "Howland Reed", faction: "House Stark", type: "NCU", cost: 6, isUnique: true, img: "https://i.imgur.com/gD70KNY.jpeg" },
+            { id: 24, name: "Eddard Stark", faction: "House Stark", type: "NCU", cost: 7, isUnique: true, img: "https://i.imgur.com/cQQoTJO.jpeg" },
+            
+            { id: 50, name: "Dreadfort Cutthroats", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ct.png" },
+            { id: 51, name: "Dreadfort Spearmen", faction: "House Bolton", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/sp.png" },
+            { id: 52, name: "Dreadfort Bastard's Girls", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/bg.png" },
+            { id: 53, name: "Dreadfort Flayed Men", faction: "House Bolton", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/fm.png" },
+            { id: 54, name: "Dreadfort Archers", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/a.png" },
+            { id: 55, name: "Dreadfort Blackguards", faction: "House Bolton", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/db.png" },
+            { id: 56, name: "Bloody Mummer Skirmishers", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/ms.png" },
+            { id: 57, name: "Bloody Mummer Zorse Riders", faction: "House Bolton", type: "COMBAT", cost: 6, unitType: "Cavalry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/units/mz.png" },
+            
+            { id: 69, name: "Tybald", faction: "House Bolton", type: "NCU", cost: 6, isUnique: true, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/t.png" },
+            { id: 70, name: "Ramsay Snow", faction: "House Bolton", type: "NCU", cost: 5, isUnique: true, img: "https://i.imgur.com/lEZew7W.jpeg" },
+            { id: 71, name: "Walder Frey", faction: "House Bolton", type: "NCU", cost: 5, isUnique: true, img: "https://i.imgur.com/OKuuTkx.jpeg" },
+            { id: 72, name: "Jeyne Poole", faction: "House Bolton", type: "NCU", cost: 6, isUnique: true, img: "https://i.imgur.com/TplCpwi.jpeg" },
+            { id: 73, name: "Walda Frey", faction: "House Bolton", type: "NCU", cost: 6, isUnique: true, img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/ncu/fw.png" },
+            { id: 74, name: "Roose Bolton", faction: "House Bolton", type: "NCU", cost: 7, isUnique: true, img: "https://i.imgur.com/qdXuqfH.jpeg" },
+
+            // LANNISTER
+            { id: 80, name: "Knights of Casterly Rock", faction: "House Lannister", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/k.png?raw=true" },
+            { id: 81, name: "House Clegane Mountain's Men", faction: "House Lannister", type: "COMBAT", cost: 7, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/mm.png?raw=true" },
+            { id: 82, name: "Lannisport City Watch", faction: "House Lannister", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/cw.png?raw=true" },
+            { id: 83, name: "Lannister Crossbowmen", faction: "House Lannister", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/cb.png?raw=true" },
+            { id: 84, name: "Lannister Guardsmen", faction: "House Lannister", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/lg.png?raw=true" },
+            { id: 85, name: "Lannister Halberdiers", faction: "House Lannister", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/units/lh.png?raw=true" },
+
+            { id: 90, name: "Joffrey Baratheon", faction: "House Lannister", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/jb.png?raw=true" },
+            { id: 91, name: "Pycelle", faction: "House Lannister", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/p.png?raw=true" },
+            { id: 92, name: "Qyburn", faction: "House Lannister", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/q.png?raw=true" },
+            { id: 93, name: "Cersei Lannister", faction: "House Lannister", type: "NCU", cost: 6, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/cl.png?raw=true" },
+            { id: 94, name: "Tyrion Lannister", faction: "House Lannister", type: "NCU", cost: 6, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/ncu/tl.png?raw=true" },
+
+            // BARATHEON
+            { id: 400, name: "Baratheon Wardens", faction: "House Baratheon", type: "COMBAT", cost: 5, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bw.png?raw=true" },
+            { id: 401, name: "Baratheon Sentinels", faction: "House Baratheon", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bs.png?raw=true" },
+            { id: 402, name: "Baratheon Halberdiers", faction: "House Baratheon", type: "COMBAT", cost: 6, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/bh.png?raw=true" },
+            { id: 403, name: "Stag Knights", faction: "House Baratheon", type: "COMBAT", cost: 8, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/sk.png?raw=true" },
+            { id: 404, name: "Champions of the Stag", faction: "House Baratheon", type: "COMBAT", cost: 8, unitType: "Cavalry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/cots.png?raw=true" },
+            { id: 405, name: "Queen's Men", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/qm.png?raw=true" },
+            { id: 406, name: "King's Men", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/km.png?raw=true" },
+            { id: 407, name: "Rose Knights", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/rk.png?raw=true" },
+            { id: 408, name: "Thorn Watch", faction: "House Baratheon", type: "COMBAT", cost: 7, unitType: "Infantry", loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/units/tw.png?raw=true" },
+
+            { id: 450, name: "Margaery Tyrell", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/mt.png?raw=true" },
+            { id: 451, name: "Olenna Tyrell", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Renly", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/ot.png?raw=true" },
+            { id: 452, name: "Davos Seaworth", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/ds.png?raw=true" },
+            { id: 453, name: "Melisandre", faction: "House Baratheon", type: "NCU", cost: 6, isUnique: true, loyalty: "Stannis", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/m.png?raw=true" },
+            { id: 454, name: "Alester Florent", faction: "House Baratheon", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/af.png?raw=true" },
+            { id: 455, name: "Shyra Errol", faction: "House Baratheon", type: "NCU", cost: 5, isUnique: true, img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/ncu/who.png?raw=true" }
+        ];
+
+        const attachmentsDB = [
+            // STARK
+            { id: 100, name: "Robb Stark (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/ibcNKqr.jpeg" },
+            { id: 101, name: "Robb Stark", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/ibcNKqr.jpeg" },
+            { id: 102, name: "Brynden Tully (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/gRulOc1.jpeg" },
+            { id: 103, name: "Brynden Tully", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/gRulOc1.jpeg" },
+            { id: 104, name: "Greatjon Umber (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GRtfeOz.jpeg" },
+            { id: 105, name: "Greatjon Umber", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GRtfeOz.jpeg" },
+            { id: 106, name: "Sworn Sword Captain", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/0SzFTA3.jpeg" },
+            { id: 107, name: "Umber Champion", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/attachments/uc.png" },
+            { id: 108, name: "Winterfell Guardian", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Cavalry", img: "https://i.imgur.com/2fd0kj8.jpeg" },
+            { id: 109, name: "Howland Reed (C)", faction: "House Stark", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GDIp45R.jpeg" },
+            { id: 110, name: "Howland Reed", faction: "House Stark", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/GDIp45R.jpeg" },
+            { id: 111, name: "Crannogman Warden", faction: "House Stark", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/cPqAMhg.jpeg" },
+            
+            // BOLTON
+            { id: 200, name: "Ramsay Snow (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
+            { id: 201, name: "Ramsay Snow", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rs.png" },
+            { id: 202, name: "Roose Bolton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
+            { id: 203, name: "Roose Bolton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/rb.png" },
+            { id: 204, name: "Steelshanks Walton (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
+            { id: 205, name: "Steelshanks Walton", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sw.png" },
+            { id: 206, name: "Vargo Hoat (C)", faction: "House Bolton", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/Bkjg4Iq.jpeg" },
+            { id: 207, name: "Vargo Hoat", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://i.imgur.com/Bkjg4Iq.jpeg" },
+            { id: 208, name: "Damon Dance-For-Me", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/dd.png" },
+            { id: 209, name: "Ben Bones", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/bb.png" },
+            { id: 210, name: "Skinner", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/s.png" },
+            { id: 211, name: "Sour Alyn", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/sa.png" },
+            { id: 212, name: "Grunt", faction: "House Bolton", cost: 1, isCommander: false, isUnique: true, attType: 3, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/g.png" },
+            { id: 213, name: "Rorge", faction: "House Bolton", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/ro.png" },
+            { id: 214, name: "Bitter", faction: "House Bolton", cost: 0, isCommander: false, isUnique: true, attType: 4, req: "Rorge", unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/bi.png" },
+            { id: 215, name: "Theon Greyjoy", faction: "House Bolton", cost: 0, isCommander: false, isUnique: true, attType: 4, req: "Ramsay Snow", unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/r.png" },
+            { id: 216, name: "Dreadfort Captain", faction: "House Bolton", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/dc.png" },
+            { id: 217, name: "Dreadfort Flayer", faction: "House Bolton", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/attachments/df.png" },
+
+            // LANNISTER
+            { id: 300, name: "Jaime Lannister (C)", faction: "House Lannister", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/jl.png?raw=true" },
+            { id: 301, name: "Jaime Lannister", faction: "House Lannister", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/jl.png?raw=true" },
+            { id: 302, name: "Tyrion Lannister (C)", faction: "House Lannister", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/tl_b.png?raw=true" },
+            { id: 303, name: "Tyrion Lannister", faction: "House Lannister", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/tl_b.png?raw=true" },
+            { id: 304, name: "Gregor Clegane (C)", faction: "House Lannister", cost: 0, isCommander: true, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc_b.png?raw=true" },
+            { id: 305, name: "Gregor Clegane", faction: "House Lannister", cost: 2, isCommander: false, isUnique: true, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc_b.png?raw=true" },
+            { id: 306, name: "Guard Captain", faction: "House Lannister", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/gc2.png?raw=true" },
+            { id: 307, name: "Assault Veteran", faction: "House Lannister", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/attachments/av.png?raw=true" },
+
+            // BARATHEON
+            { id: 500, name: "Stannis Baratheon (C) - The Rightful Heir", faction: "House Baratheon", cost: 0, isCommander: true, isUnique: true, loyalty: "Stannis", attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/sm.png?raw=true" },
+            { id: 501, name: "Renly Baratheon (C) - The Charismatic Heir", faction: "House Baratheon", cost: 0, isCommander: true, isUnique: true, loyalty: "Renly", attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/rb.png?raw=true" },
+            { id: 502, name: "Stag Knight Noble", faction: "House Baratheon", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/sk.png?raw=true" },
+            { id: 503, name: "Master Warden", faction: "House Baratheon", cost: 1, isCommander: false, isUnique: false, attType: 1, unitType: "Infantry", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/attachments/mw.png?raw=true" }
+        ];
+
+        const factionDecks = {
+            "House Stark": [
+                { name: "The Cold Wind Blows", img: "https://i.imgur.com/ZXL9atA.jpeg" },
+                { name: "Northern Ferocity", img: "https://i.imgur.com/i64YmuM.jpeg" },
+                { name: "Relentless Charge", img: "https://i.imgur.com/8ZhiPgw.jpeg" },
+                { name: "Winter Is Coming", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/wc.png" },
+                { name: "Swift Reposition", img: "https://i.imgur.com/uvgM7Qy.jpeg" },
+                { name: "The Pack Survives", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ps.png" },
+                { name: "The North Endures", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/ne.png" }
+            ],
+            "House Bolton": [
+                { name: "A Flayed Men Has No Secrets", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fm.png" },
+                { name: "Our Blades Are Sharp", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ob.png" },
+                { name: "Fear Keeps A Man Alive", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fk.png" },
+                { name: "Sadistic Games", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sg.png" },
+                { name: "Flay Them All!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ft.png" },
+                { name: "Horrific Reputation", img: "https://i.imgur.com/7KfiPdn.jpeg" },
+                { name: "Cruelty And Cunning", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cc.png" }
+            ],
+            "House Lannister": [
+                { name: "Hear Me Roar!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/hmr.png?raw=true" },
+                { name: "Counterplot", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/cp.png?raw=true" },
+                { name: "Intrigue and Subterfuge", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/is.png?raw=true" },
+                { name: "Wealth of the Rock", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/wr.png?raw=true" },
+                { name: "Subjugation of Power", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/sub.png?raw=true" },
+                { name: "A Lannister Pays His Debts", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/ld.png?raw=true" },
+                { name: "Bribery", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/b.png?raw=true" }
+            ],
+            "House Baratheon (Renly)": [
+                { name: "Ours Is the Fury!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_o.png?raw=true" },
+                { name: "Commanding Presence", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_cp.png?raw=true" },
+                { name: "Bannered Resolve", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_br.png?raw=true" },
+                { name: "Strength In Unity", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_su.png?raw=true" },
+                { name: "Rally The Banners", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_rb.png?raw=true" },
+                { name: "Pressured Onslaught", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_po.png?raw=true" },
+                { name: "The King's Favor", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_kf.png?raw=true" }
+            ],
+            "House Baratheon (Stannis)": [
+                { name: "Ours Is the Fury!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_o.png?raw=true" },
+                { name: "Measured Retribution", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_mr.png?raw=true" },
+                { name: "Unrelenting Determination", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_ud.png?raw=true" },
+                { name: "Judgement Returned", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_jr.png?raw=true" },
+                { name: "By Patience And Will", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_pw.png?raw=true" },
+                { name: "Steadfast Pursuit", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_sp.png?raw=true" },
+                { name: "The King's Justice", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_kj.png?raw=true" }
+            ]
+        };
+
+        const commanderDecks = {
+            "Robb Stark (C)": [
+                { name: "Waiting To Strike", img: "https://i.imgur.com/ihnC7JE.jpeg" },
+                { name: "Hit And Run", img: "https://i.imgur.com/as3VJl7.jpeg" },
+                { name: "Encircle The Prey", img: "https://i.imgur.com/y1TgaJ3.jpeg" }
+            ],
+            "Greatjon Umber (C)": [
+                { name: "Berserker Tactics", img: "https://i.imgur.com/GQPuSxK.jpeg" },
+                { name: "Death Before Chains!", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/dc.png" },
+                { name: "Most Fearless In The North", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/mf.png" }
+            ],
+            "Brynden Tully (C)": [
+                { name: "Blackfish's Defiance", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/bd.png" },
+                { name: "Family, Duty, Honor", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/fdh.png" },
+                { name: "Tully Resolve", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/stark/tactics/tr.png" }
+            ],
+            "Howland Reed (C)": [
+                { name: "Lay Of The Land", img: "https://i.imgur.com/yHRDLtW.jpeg" },
+                { name: "Crannog Ambush", img: "https://i.imgur.com/E7J5D2s.jpeg" },
+                { name: "Bog Devil Tactics", img: "https://i.imgur.com/B46bewu.jpeg" }
+            ],
+            "Roose Bolton (C)": [
+                { name: "Whispered Threats", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/wt.png" },
+                { name: "Cold Regards", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/cr.png" },
+                { name: "Dreadfort Secrets", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/ds.png" }
+            ],
+            "Ramsay Snow (C)": [
+                { name: "Echoes Of Agony", img: "https://i.imgur.com/qr9gfov.jpeg" },
+                { name: "Broken Playthings", img: "https://i.imgur.com/QpdHULv.jpeg" },
+                { name: "Spoil In Flesh", img: "https://i.imgur.com/FGEij2d.jpeg" }
+            ],
+            "Vargo Hoat (C)": [
+                { name: "The Crippler's Infamy", img: "https://i.imgur.com/SpVSuqV.jpeg" },
+                { name: "Butcher's Work", img: "https://i.imgur.com/hIA5V0i.jpeg" },
+                { name: "Savored Suffering", img: "https://i.imgur.com/xNhAhKJ.jpeg" }
+            ],
+            "Steelshanks Walton (C)": [
+                { name: "Steelshanks's Watch", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/sw.png" },
+                { name: "Fear Is Loyalty", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/fl.png" },
+                { name: "Disciplined Execution", img: "https://raw.githubusercontent.com/Pf2eTools/mcl-documents/02d0ac5fb0b5e32bf53d86495713fa608ef03996/assets/2026/bolton/tactics/de.png" }
+            ],
+            "Jaime Lannister (C)": [
+                { name: "Kingslayer's Pride", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/kp.png?raw=true" },
+                { name: "Duelist's Patience", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/dp.png?raw=true" },
+                { name: "Reckless Glory", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/pd.png?raw=true" }
+            ],
+            "Gregor Clegane (C)": [
+                { name: "Brutal Slayings", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/bs.png?raw=true" },
+                { name: "Path of Destruction", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/pd.png?raw=true" },
+                { name: "Fury Unleashed", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/fu.png?raw=true" }
+            ],
+            "Tyrion Lannister (C)": [
+                { name: "Turn the Tables", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/tt.png?raw=true" },
+                { name: "False Agenda", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/fa.png?raw=true" },
+                { name: "Intercept Orders", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/lannister/tactics/io.png?raw=true" }
+            ],
+            "Stannis Baratheon (C) - The Rightful Heir": [
+                { name: "Oath of Duty", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_od.png?raw=true" },
+                { name: "Judgement Rendered", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_ju.png?raw=true" },
+                { name: "To The Bitter End", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/s_be.png?raw=true" }
+            ],
+            "Renly Baratheon (C) - The Charismatic Heir": [
+                { name: "Younger, Bolder...", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_yb.png?raw=true" },
+                { name: "Unified Advance", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_ua.png?raw=true" },
+                { name: "The Realm Stands With Me!", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/baratheon/tactics/r_rs.png?raw=true" }
+            ]
+        };
+
+        const terrainCards = [
+            { name: "Battlefield Layouts", img: "https://i.imgur.com/fPjf9FT.jpeg", fullImg: "https://i.imgur.com/fPjf9FT.jpeg" },
+            { name: "Bog", img: "https://i.imgur.com/TYVyCPY.jpeg", fullImg: "https://i.imgur.com/cFazngM.jpeg" },
+            { name: "Forest", img: "https://i.imgur.com/OgTlr0R.jpeg", fullImg: "https://i.imgur.com/wUPCX5J.jpeg" },
+            { name: "Corpse pile", img: "https://i.imgur.com/Xkk9qIP.jpeg", fullImg: "https://i.imgur.com/VJo344l.jpeg" },
+            { name: "Weirdwood", img: "https://i.imgur.com/3W3AkRw.jpeg", fullImg: "https://i.imgur.com/moyTtQn.jpeg" },
+            { name: "Hedge", img: "https://i.imgur.com/vh9dDcM.jpeg", fullImg: "https://i.imgur.com/hUu9QEn.jpeg" },
+            { name: "Stakes", img: "https://i.imgur.com/El5HQG5.jpeg", fullImg: "https://i.imgur.com/MmB7QlF.jpeg" },
+            { name: "Low wall", img: "https://i.imgur.com/RwLNe8H.jpeg", fullImg: "https://i.imgur.com/L0mCM9d.jpeg" },
+            { name: "Palisade", img: "https://i.imgur.com/W6QzwLT.jpeg", fullImg: "https://i.imgur.com/S6u14Zn.jpeg" }
+        ];
+
+        const gameModeCards = [
+            { name: "A Game Of Thrones", img: "https://i.imgur.com/P1YVd62.jpeg" },
+            { name: "A Clash Of Kings", img: "https://i.imgur.com/cM8C0oa.jpeg" },
+            { name: "A Dance With Dragons", img: "https://i.imgur.com/32ZtFT8.jpeg" }
+        ];
+
+        const factionZoneCards = [
+            { name: "House Lannister Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-lannister.jpg?raw=true" },
+            { name: "House Bolton Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-bolton.jpg?raw=true" },
+            { name: "House Stark Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-stark.jpg?raw=true" },
+            { name: "House Baratheon Zone", img: "https://github.com/Pf2eTools/mcl-documents/blob/master/assets/2026/v01/game/zone-house-baratheon.jpg?raw=true" }
+        ];
+
+        // --- STATE & LOGIC ---
+        const MAX_MAIN = 40; const MAX_FREE = 3;
+        let activeFaction = "House Stark"; let roster = []; let currentUnitIndex = null;
+        let currentLightboxImages = []; let currentLightboxIndex = 0;
+
+        renderStore(); updateUI();
+
+        // Updated Lightbox Logic
+        function openLightbox(src) {
+            currentLightboxImages = []; 
+            document.getElementById('lightbox-img').src = src; 
+            document.getElementById('lb-prev').style.display = 'none';
+            document.getElementById('lb-next').style.display = 'none';
+            document.getElementById('lightbox').style.display = 'flex'; 
+        }
+
+        function openLightboxGallery(images, index) {
+            currentLightboxImages = images;
+            currentLightboxIndex = index;
+            updateLightboxImage();
+            document.getElementById('lb-prev').style.display = 'block';
+            document.getElementById('lb-next').style.display = 'block';
+            document.getElementById('lightbox').style.display = 'flex';
+        }
+
+        function changeLightboxImage(dir) {
+            event.stopPropagation();
+            currentLightboxIndex += dir;
+            if (currentLightboxIndex < 0) currentLightboxIndex = currentLightboxImages.length - 1;
+            if (currentLightboxIndex >= currentLightboxImages.length) currentLightboxIndex = 0;
+            updateLightboxImage();
+        }
+
+        function updateLightboxImage() {
+            if(currentLightboxImages.length > 0) {
+                document.getElementById('lightbox-img').src = currentLightboxImages[currentLightboxIndex];
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('lightbox').style.display === 'flex' && currentLightboxImages.length > 0) {
+                if (event.key === "ArrowLeft") {
+                    changeLightboxImage(-1);
+                } else if (event.key === "ArrowRight") {
+                    changeLightboxImage(1);
+                } else if (event.key === "Escape") {
+                    closeLightbox();
+                }
+            }
+        });
+
+        function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function setFaction(f) {
+            activeFaction = f;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(f === 'House Stark') document.querySelector('.stark-btn').classList.add('active');
+            else if(f === 'House Bolton') document.querySelector('.bolton-btn').classList.add('active');
+            else if(f === 'House Lannister') document.querySelector('.lannister-btn').classList.add('active');
+            else document.querySelector('.baratheon-btn').classList.add('active');
+            renderStore();
+        }
+
+        function isCommanderInRoster() { return roster.some(item => item.attachments.some(a => a.isCommander)); }
+        function getCommanderName() {
+            for(let item of roster) {
+                const comm = item.attachments.find(a => a.isCommander);
+                if(comm) return comm.name;
+            }
+            return null;
+        }
+
+        function getCharacterNamesInRoster() {
+            let names = new Set();
+            roster.forEach(item => {
+                item.attachments.forEach(a => names.add(getBaseName(a.name)));
+                if (item.unit.isUnique) {
+                    names.add(getBaseName(item.unit.name));
+                }
+            });
+            return names;
+        }
+
+        function getFactionLoyalty() {
+            // Find any unit or attachment with a loyalty property
+            for (let item of roster) {
+                if (item.unit.loyalty) return item.unit.loyalty;
+                for (let att of item.attachments) {
+                    if (att.loyalty) return att.loyalty;
+                }
+            }
+            return null; // Neutral
+        }
+
+        function calculateStats() {
+            let uPts = 0; let aPts = 0;
+            roster.forEach(item => { uPts += item.unit.cost; item.attachments.forEach(a => aPts += a.cost); });
+            let freeUsed = Math.min(aPts, MAX_FREE);
+            let attSpill = aPts - freeUsed;
+            return { mainUsed: uPts + attSpill, freeUsed, totalUnit: uPts, totalAtt: aPts };
+        }
+
+        function checkUnitAvailability(unit) {
+            if (!checkAffordability(unit.cost, 'UNIT')) return false;
+            if (unit.req) {
+                const presentChars = getCharacterNamesInRoster();
+                if (!presentChars.has(unit.req)) return false;
+            }
+            if (unit.isUnique) {
+                const usedChars = getCharacterNamesInRoster();
+                const baseName = getBaseName(unit.name);
+                if (usedChars.has(baseName)) return false;
+            }
+            // Check Loyalty
+            const currentLoyalty = getFactionLoyalty();
+            if (currentLoyalty && unit.loyalty && unit.loyalty !== currentLoyalty) return false;
+
+            return true;
+        }
+
+        function checkAffordability(cost, type) {
+            const stats = calculateStats();
+            if(type === 'UNIT' || type === 'COMBAT' || type === 'NCU') {
+                return (stats.mainUsed + cost) <= MAX_MAIN;
+            } else {
+                let newAttTotal = stats.totalAtt + cost;
+                let newFreeUsed = Math.min(newAttTotal, MAX_FREE);
+                let newSpill = newAttTotal - newFreeUsed;
+                return (stats.totalUnit + newSpill) <= MAX_MAIN;
+            }
+        }
+
+        function renderStore() {
+            const combatStore = document.getElementById('store-combat');
+            const ncuStore = document.getElementById('store-ncu');
+            combatStore.innerHTML = ''; ncuStore.innerHTML = '';
+            
+            unitsDB.filter(u => u.faction === activeFaction)
+                   .sort((a, b) => a.cost - b.cost)
+                   .forEach(u => {
+                const canAfford = checkUnitAvailability(u);
+                const el = createCard(u, canAfford, () => addUnit(u));
+                if(u.type === 'COMBAT') combatStore.appendChild(el); else ncuStore.appendChild(el);
+            });
+        }
+
+        function createCard(data, active, onClick) {
+            const div = document.createElement('div');
+            div.className = `card ${!active ? 'disabled' : ''}`;
+            let badge = data.isCommander ? `<div class="commander-badge">COMMANDER</div>` : '';
+            let loyaltyBadge = '';
+            if (data.loyalty === 'Stannis') loyaltyBadge = `<div class="loyalty-badge loyalty-stannis">STANNIS LOYALTY</div>`;
+            if (data.loyalty === 'Renly') loyaltyBadge = `<div class="loyalty-badge loyalty-renly">RENLY LOYALTY</div>`;
+            
+            let specialBtn = '';
+            if (data.special) {
+                specialBtn = `<button class="btn-special" onclick="event.stopPropagation(); openLightbox('${data.special.img}')">Special</button>`;
+            }
+
+            div.innerHTML = `${badge}${loyaltyBadge}<div class="card-img-wrap" onclick="event.stopPropagation(); openLightbox('${data.img}')"><img src="${data.img}" onerror="this.src='https://via.placeholder.com/150'"></div><div class="card-info" onclick="${active?'addUnitByID('+data.id+')':''}"><div class="card-name">${data.name}</div>${specialBtn}<div class="card-cost">${data.cost} pts</div></div>`;
+            div.querySelector('.card-info').onclick = active ? onClick : null;
+            return div;
+        }
+
+        function addUnit(unit) { roster.push({ unit: {...unit}, attachments: [] }); updateUI(); }
+        function removeUnit(idx) { roster.splice(idx, 1); updateUI(); }
+        
+        function openAttModal(idx) {
+            currentUnitIndex = idx;
+            const modalGrid = document.getElementById('att-store-grid'); modalGrid.innerHTML = '';
+            const hasComm = isCommanderInRoster();
+            const usedChars = getCharacterNamesInRoster();
+            const targetUnit = roster[idx].unit;
+            const targetUnitType = targetUnit.unitType || 'Infantry';
+            const unitAtts = roster[idx].attachments;
+            const currentLoyalty = getFactionLoyalty(); // Get Loyalty
+
+            const atts = attachmentsDB.filter(a => a.faction === targetUnit.faction);
+            atts.sort((a, b) => (a.isCommander === b.isCommander) ? 0 : a.isCommander ? -1 : 1);
+            document.getElementById('commander-msg').style.display = hasComm ? 'block' : 'none';
+            atts.forEach(a => {
+                let canAfford = checkAffordability(a.cost, 'ATTACHMENT');
+                let baseName = getBaseName(a.name);
+                let attType = a.unitType || 'Infantry';
+                let slotType = a.attType || 1;
+                if(a.isCommander && hasComm) canAfford = false;
+                if(a.isUnique && usedChars.has(baseName)) canAfford = false;
+                if(attType !== targetUnitType) canAfford = false;
+                if(slotType === 1 && unitAtts.some(x => x.attType === 1)) canAfford = false;
+                if(slotType === 3 && unitAtts.some(x => x.attType === 3)) canAfford = false;
+                if(slotType === 4 && a.req) {
+                    if(!unitAtts.some(x => getBaseName(x.name) === a.req)) canAfford = false;
+                }
+                // Check Loyalty for Attachments
+                if (currentLoyalty && a.loyalty && a.loyalty !== currentLoyalty) canAfford = false;
+
+                modalGrid.appendChild(createCard(a, canAfford, () => addAttachment(a)));
+            });
+            document.getElementById('attModal').style.display = 'flex';
+        }
+
+        function addAttachment(att) { if(currentUnitIndex!==null) { roster[currentUnitIndex].attachments.push({...att}); closeModal('attModal'); updateUI(); } }
+        function removeAttachment(uIdx, aIdx) { roster[uIdx].attachments.splice(aIdx, 1); updateUI(); }
+        function resetAll() { if(confirm('Are you sure you want to reset the list?')) { roster = []; updateUI(); } }
+
+        function renderDeck(deckName) {
+            const fGrid = document.getElementById('faction-tactics-grid');
+            fGrid.innerHTML = '';
+            const deck = factionDecks[deckName];
+            if(deck) {
+               deck.forEach((c, i) => fGrid.appendChild(createTacticCard(c, i, deck)));
+            }
+        }
+
+        function openTacticsModal() {
+            const fGrid = document.getElementById('faction-tactics-grid');
+            const cGrid = document.getElementById('commander-tactics-grid');
+            const cTitle = document.getElementById('commander-tactics-title');
+            const msg = document.getElementById('no-commander-msg');
+            const baraChoice = document.getElementById('baratheon-choice');
+            
+            fGrid.innerHTML = '';
+            baraChoice.style.display = 'none';
+
+            // Special logic for Baratheon
+            if (activeFaction === 'House Baratheon') {
+                const loyalty = getFactionLoyalty();
+                if (loyalty === 'Stannis') {
+                    renderDeck('House Baratheon (Stannis)');
+                } else if (loyalty === 'Renly') {
+                    renderDeck('House Baratheon (Renly)');
+                } else {
+                    // Neutral: Show choice buttons
+                    baraChoice.style.display = 'block';
+                }
+            } else {
+                // Standard Logic
+                const deck = factionDecks[activeFaction]||[];
+                deck.forEach((c, i) => fGrid.appendChild(createTacticCard(c, i, deck)));
+            }
+
+            cGrid.innerHTML = '';
+            const commName = getCommanderName();
+            if(commName && commanderDecks[commName]) {
+                cTitle.style.display = 'block'; cGrid.style.display = 'grid'; msg.style.display = 'none';
+                cTitle.innerText = `Commander Cards : ${commName}`;
+                const commDeck = commanderDecks[commName];
+                commDeck.forEach((c, i) => cGrid.appendChild(createTacticCard(c, i, commDeck)));
+            } else {
+                cTitle.style.display = 'none'; cGrid.style.display = 'none'; msg.style.display = 'block';
+                msg.innerText = commName ? `No cards defined for ${commName}` : "No Commander selected.";
+            }
+            document.getElementById('tacticsModal').style.display = 'flex';
+        }
+
+        function openFactionZoneModal() {
+            const grid = document.getElementById('faction-zone-grid');
+            grid.innerHTML = '';
+            factionZoneCards.forEach((c, i) => {
+                grid.appendChild(createTacticCard(c, i, factionZoneCards));
+            });
+            document.getElementById('factionZoneModal').style.display = 'flex';
+        }
+
+        function openTerrainModal() {
+            const grid = document.getElementById('terrain-grid');
+            const special = document.getElementById('terrain-special');
+            grid.innerHTML = '';
+            special.innerHTML = '';
+            
+            const layoutCard = terrainCards.find(c => c.name === "Battlefield Layouts");
+            // NOTE: We don't enable gallery nav for single special card usually, but we can pass a single item array if needed.
+            // For now, standard click for layout
+            if(layoutCard) {
+                const div = document.createElement('div');
+                div.className = 'tactic-card';
+                div.innerHTML = `<img src="${layoutCard.img}" alt="${layoutCard.name}">`;
+                div.onclick = () => openLightbox(layoutCard.fullImg || layoutCard.img);
+                special.appendChild(div);
+            }
+
+            const standardTerrain = terrainCards.filter(c => c.name !== "Battlefield Layouts");
+            standardTerrain.forEach((c, i) => {
+                grid.appendChild(createTacticCard(c, i, standardTerrain));
+            });
+            
+            document.getElementById('terrainModal').style.display = 'flex';
+        }
+
+        function openGameModeModal() {
+            const grid = document.getElementById('gamemode-grid');
+            grid.innerHTML = '';
+            
+            grid.style.display = 'flex';
+            grid.style.flexDirection = 'column';
+            grid.style.gap = '15px';
+
+            gameModeCards.forEach((c, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-action btn-gamemode'; 
+                btn.style.width = '100%';
+                btn.style.padding = '15px';
+                btn.style.fontSize = '1.2rem';
+                btn.style.cursor = 'pointer';
+                btn.innerText = c.name;
+                // Pass gameModeCards as gallery
+                const images = gameModeCards.map(gm => gm.img);
+                btn.onclick = () => openLightboxGallery(images, i);
+                
+                grid.appendChild(btn);
+            });
+
+            document.getElementById('gameModeModal').style.display = 'flex';
+        }
+
+        function openFeedbackModal() {
+            document.getElementById('feedbackModal').style.display = 'flex';
+        }
+
+        async function copyEmail() {
+            const email = "songtesting@cmon.com";
+            try {
+                await navigator.clipboard.writeText(email);
+                const btn = document.querySelector('#feedbackModal .btn-feedback'); 
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.style.backgroundColor = "#27ae60"; 
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = ""; 
+                }, 2000);
+            } catch (e) {
+                alert("Erreur lors de la copie");
+            }
+        }
+
+        // Updated Function: Accepts Index and Array for Gallery Navigation
+        function createTacticCard(card, index, allCards) {
+            const div = document.createElement('div');
+            div.className = 'tactic-card';
+            div.innerHTML = `<img src="${card.img}" alt="${card.name}">`;
+            
+            // Build simple array of images for the gallery
+            const galleryImages = allCards.map(c => c.fullImg || c.img);
+            
+            div.onclick = () => openLightboxGallery(galleryImages, index);
+            return div;
+        }
+
+        function updateUI() {
+            const stats = calculateStats();
+            const hasComm = isCommanderInRoster();
+            document.getElementById('mainPts').innerText = stats.mainUsed;
+            document.getElementById('freePts').innerText = stats.freeUsed;
+            document.getElementById('unitPts').innerText = stats.totalUnit;
+            document.getElementById('attPts').innerText = stats.totalAtt;
+            const commInd = document.getElementById('commanderIndicator');
+            commInd.innerText = hasComm ? "Commander OK" : "Commander Required";
+            commInd.className = hasComm ? "commander-status status-ok" : "commander-status status-missing";
+            renderStore();
+            const lC = document.getElementById('roster-list-combat'); lC.innerHTML = '';
+            const lN = document.getElementById('roster-list-ncu'); lN.innerHTML = '';
+            roster.forEach((item, idx) => {
+                const el = document.createElement('div'); el.className = 'roster-unit';
+                let attHTML = '';
+                if(item.unit.type === 'COMBAT') {
+                    item.attachments.forEach((a, aIdx) => {
+                        const sComm = a.isCommander ? 'is-commander' : '';
+                        const nComm = a.isCommander ? '👑 ' : '+ ';
+                        attHTML += `<div class="att-row ${sComm}"><span class="att-name-link" onclick="openLightbox('${a.img}')">${nComm}${a.name}</span><div style="display:flex; gap:10px;"><b>${a.cost} pts</b><span style="color:#e74c3c; cursor:pointer;" onclick="removeAttachment(${idx}, ${aIdx})">X</span></div></div>`;
+                    });
+                    attHTML += `<button class="btn-add" onclick="openAttModal(${idx})">+ Add Attachment</button>`;
+                }
+                
+                // Bouton Special dans le roster
+                let rosterSpecialBtn = '';
+                if(item.unit.special) {
+                    rosterSpecialBtn = `<button class="btn-special" style="margin-right:10px;" onclick="openLightbox('${item.unit.special.img}')">Special</button>`;
+                }
+
+                el.innerHTML = `<div class="unit-header"><div style="display:flex; align-items:center; gap:10px;"><img src="${item.unit.img}" class="unit-thumb" onclick="openLightbox('${item.unit.img}')"><div><div style="display:flex; align-items:center; gap:5px;"><b>${item.unit.name}</b> ${rosterSpecialBtn}</div><div style="color:var(--text-muted); font-size:0.8rem;">${item.unit.cost} pts</div></div></div><button onclick="removeUnit(${idx})" style="border:none; background:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='var(--text-muted)'">&times;</button></div>${attHTML}`;
+                if(item.unit.type === 'COMBAT') lC.appendChild(el); else lN.appendChild(el);
+            });
+        }
+
+        async function shareList() {
+            const stats = calculateStats();
+            const commander = getCommanderName() || "None";
+            const loyalty = getFactionLoyalty() || "Neutral";
+            const cU = roster.filter(i => i.unit.type === 'COMBAT');
+            const nU = roster.filter(i => i.unit.type === 'NCU');
+            let t = `Faction: ${activeFaction}`;
+            if(activeFaction === 'House Baratheon') t += ` (${loyalty})`;
+            t += `\nCommander: ${commander}\nPoints: ${stats.mainUsed}/40 (Free Att: ${stats.freeUsed}/3)\n\n`;
+            
+            if(cU.length) { t += `Battlefield Units\n`; cU.forEach(i => { t += ` • ${i.unit.name} (${i.unit.cost})\n`; i.attachments.forEach(a => t += `     ${a.name} (${a.cost})\n`); }); t += `\n`; }
+            if(nU.length) { t += `Council Units\n`; nU.forEach(i => t += ` • ${i.unit.name} (${i.unit.cost})\n`); }
+            try { await navigator.clipboard.writeText(t); const b = document.querySelector('.btn-share'); const p = b.innerText; b.innerText = "Copied!"; setTimeout(() => b.innerText = p, 2000); } catch (e) { alert("Error copying list"); }
+        }
+
+        window.onclick = (e) => {
+            if(e.target == document.getElementById('attModal')) closeModal('attModal');
+            if(e.target == document.getElementById('tacticsModal')) closeModal('tacticsModal');
+            if(e.target == document.getElementById('terrainModal')) closeModal('terrainModal');
+            if(e.target == document.getElementById('gameModeModal')) closeModal('gameModeModal');
+            if(e.target == document.getElementById('feedbackModal')) closeModal('feedbackModal');
+            if(e.target == document.getElementById('factionZoneModal')) closeModal('factionZoneModal');
+        }
+    </script>
+</body>
+</html>
