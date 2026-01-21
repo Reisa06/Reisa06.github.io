@@ -378,7 +378,8 @@
         const unitsDB = [
             // STARK
             { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: img('stark','units','ss.png') },
-            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: img('stark','units','ub.png') },
+            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: img('stark','units','ub.png'), onlyVersions: ["01/2026"] },
+            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: img('stark','units','ub.png'), excludeVersions: ["01/2026"] },
             { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: img('stark','units','ug.png'), excludeVersions: ["01/2026"] },
             { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: img('stark','units','ur.png'), excludeVersions: ["01/2026"] },
             { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: img('stark','units','tc.png'), excludeVersions: ["01/2026"] },
