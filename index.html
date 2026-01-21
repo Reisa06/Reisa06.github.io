@@ -228,7 +228,7 @@
     <header>
         <div class="points-box">
             <div class="total-row">
-                <div class="total-points"><span id="mainPts">0</span> / 50</div>
+                <div class="total-points"><span id="mainPts">0</span> / <span id="maxPoints">40</span></div>
                 <div class="free-points">+ <span id="freePts">0</span>/3 Attachment Points</div>
                 <span id="commanderIndicator" class="commander-status status-missing">Commander Required</span>
             </div>
@@ -366,11 +366,13 @@
             "12/2025": {
                 factions: ["House Stark", "House Bolton", "House Lannister", "House Baratheon"],
                 features: ["factionZone"],
+                maxPoints: 40,
                 baseUrl: REPO_URL_12_25
             },
             "01/2026": {
                 factions: ["House Stark", "House Lannister"],
                 features: [], // No faction zone
+                maxPoints: 50,
                 baseUrl: REPO_URL_01_26
             }
         };
@@ -378,8 +380,12 @@
         const unitsDB = [
             // STARK
             { id: 1, name: "Stark Sworn Sword", faction: "House Stark", type: "COMBAT", cost: 5, unitType: "Infantry", img: img('stark','units','ss.png') },
-            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: img('stark','units','ub.png'), onlyVersions: ["01/2026"] },
+            
+            // House Umber Berserkers: 6pts in 12/2025
             { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 6, unitType: "Infantry", img: img('stark','units','ub.png'), excludeVersions: ["01/2026"] },
+            // House Umber Berserkers: 7pts in 01/2026
+            { id: 2, name: "House Umber Berserkers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: img('stark','units','ub.png'), onlyVersions: ["01/2026"] },
+            
             { id: 3, name: "House Umber Greataxes", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Infantry", img: img('stark','units','ug.png'), excludeVersions: ["01/2026"] },
             { id: 4, name: "House Umber Ravagers", faction: "House Stark", type: "COMBAT", cost: 7, unitType: "Cavalry", img: img('stark','units','ur.png'), excludeVersions: ["01/2026"] },
             { id: 5, name: "House Tully Cavaliers", faction: "House Stark", type: "COMBAT", cost: 8, unitType: "Cavalry", img: img('stark','units','tc.png'), excludeVersions: ["01/2026"] },
@@ -686,7 +692,7 @@
                     { name: "Hedge", img: "https://i.imgur.com/vh9dDcM.jpeg", fullImg: "https://i.imgur.com/dhT8qw8.jpeg" },
                     { name: "Low Wall", img: "https://i.imgur.com/RwLNe8H.jpeg", fullImg: "https://i.imgur.com/YisbVw3.jpeg" },
                     { name: "Stakes", img: "https://i.imgur.com/El5HQG5.jpeg", fullImg: "https://i.imgur.com/PHzySXY.jpeg" },
-                    { name: "Weirdwood", img: "https://i.imgur.com/3W3AkRw.jpeg", fullImg: "https://i.imgur.com/7FyzClx.jpeg" } // Corrected typo in user prompt "7FyzClx" from "7FyzClx" (assumed)
+                    { name: "Weirdwood", img: "https://i.imgur.com/3W3AkRw.jpeg", fullImg: "https://i.imgur.com/7FyzClx.jpeg" } 
                 ];
             }
             return [
@@ -724,7 +730,8 @@
         ];
 
         // --- STATE & LOGIC ---
-        const MAX_MAIN = 40; const MAX_FREE = 3;
+        const MAX_MAIN_DEFAULT = 40;
+        const MAX_FREE = 3;
         let activeFaction = "House Stark"; let roster = []; let currentUnitIndex = null;
         let currentLightboxImages = []; let currentLightboxIndex = 0;
         let currentVersion = "12/2025"; // Default version
@@ -752,8 +759,12 @@
             currentVersion = version;
             roster = []; // Clear roster
             
-            // Check Features
             const config = VERSION_CONFIG[currentVersion];
+            
+            // Update Max Points Display
+            document.getElementById('maxPoints').innerText = config.maxPoints || MAX_MAIN_DEFAULT;
+
+            // Check Features
             const btnZone = document.getElementById('btnFactionZone');
             if (config.features.includes('factionZone')) {
                 btnZone.style.display = 'inline-block';
@@ -891,6 +902,8 @@
         }
 
         function checkUnitAvailability(unit) {
+            const maxPoints = VERSION_CONFIG[currentVersion].maxPoints || MAX_MAIN_DEFAULT;
+            
             if (!checkAffordability(unit.cost, 'UNIT')) return false;
             if (unit.req) {
                 const presentChars = getCharacterNamesInRoster();
@@ -910,13 +923,15 @@
 
         function checkAffordability(cost, type) {
             const stats = calculateStats();
+            const maxPoints = VERSION_CONFIG[currentVersion].maxPoints || MAX_MAIN_DEFAULT;
+            
             if(type === 'UNIT' || type === 'COMBAT' || type === 'NCU') {
-                return (stats.mainUsed + cost) <= MAX_MAIN;
+                return (stats.mainUsed + cost) <= maxPoints;
             } else {
                 let newAttTotal = stats.totalAtt + cost;
                 let newFreeUsed = Math.min(newAttTotal, MAX_FREE);
                 let newSpill = newAttTotal - newFreeUsed;
-                return (stats.totalUnit + newSpill) <= MAX_MAIN;
+                return (stats.totalUnit + newSpill) <= maxPoints;
             }
         }
 
@@ -1168,6 +1183,8 @@
         function updateUI() {
             const stats = calculateStats();
             const hasComm = isCommanderInRoster();
+            const maxPoints = VERSION_CONFIG[currentVersion].maxPoints || MAX_MAIN_DEFAULT;
+            
             document.getElementById('mainPts').innerText = stats.mainUsed;
             document.getElementById('freePts').innerText = stats.freeUsed;
             document.getElementById('unitPts').innerText = stats.totalUnit;
@@ -1210,9 +1227,11 @@
             const loyalty = getFactionLoyalty() || "Neutral";
             const cU = roster.filter(i => i.unit.type === 'COMBAT');
             const nU = roster.filter(i => i.unit.type === 'NCU');
+            const maxPoints = VERSION_CONFIG[currentVersion].maxPoints || MAX_MAIN_DEFAULT;
+            
             let t = `Faction: ${activeFaction}`;
             if(activeFaction === 'House Baratheon') t += ` (${loyalty})`;
-            t += `\nCommander: ${commander}\nPoints: ${stats.mainUsed}/40 (Free Att: ${stats.freeUsed}/3)\n\n`;
+            t += `\nCommander: ${commander}\nPoints: ${stats.mainUsed}/${maxPoints} (Free Att: ${stats.freeUsed}/3)\n\n`;
             
             if(cU.length) { t += `Battlefield Units\n`; cU.forEach(i => { t += ` • ${i.unit.name} (${i.unit.cost})\n`; i.attachments.forEach(a => t += `     ${a.name} (${a.cost})\n`); }); t += `\n`; }
             if(nU.length) { t += `Council Units\n`; nU.forEach(i => t += ` • ${i.unit.name} (${i.unit.cost})\n`); }
